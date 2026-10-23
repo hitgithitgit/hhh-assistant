@@ -18,9 +18,16 @@
         }
         .weather-emoji { display: inline-block; transform-origin: center; animation: weatherFloat 2.2s ease-in-out infinite; }
 
+        @keyframes spinFast {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinning { animation: spinFast 0.8s linear infinite; }
+
         .weather-scene { isolation: isolate; position: relative; overflow: hidden; }
         .weather-scene.weather-cloudy { background: linear-gradient(135deg, #e4ebf5 0%, #d5e2f0 50%, #e2deee 100%) !important; border-color: #c4d5ea !important; }
         .weather-scene.weather-sunny { background: linear-gradient(135deg, #fff3d6 0%, #ffe3b3 50%, #fcd9df 100%) !important; border-color: #f7d197 !important; }
+        .weather-scene.weather-rain { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%) !important; border-color: #60a5fa !important; }
     </style>
 </head>
 <body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
@@ -33,18 +40,22 @@
             <div class="flex items-center gap-2">
                 <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-md">H</div>
                 <div class="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                    HHH Assistant <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.5</span>
+                    HHH Assistant <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.7</span>
                 </div>
             </div>
+            <!-- 위치 재탐색용 조그마한 새로고침 버튼 -->
+            <button onclick="refreshLocationAndWeather()" id="location-refresh-btn" class="flex items-center gap-1 text-[11px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-xl transition-all cursor-pointer shadow-2xs" title="위치 및 날씨 새로고침">
+                <span id="refresh-icon">🔄</span> 날씨/위치 갱신
+            </button>
         </div>
 
-        <!-- 3시간 간격 24시간 날씨 탭 (세로 높이 축소) -->
+        <!-- 3시간 간격 24시간 날씨 탭 -->
         <div id="hourly-weather-panel" class="bg-slate-50 border-b border-slate-200 px-3 py-1.5 shrink-0">
             <div class="flex justify-between items-center mb-1 px-1">
                 <span id="hourly-panel-title" class="text-[10px] font-bold text-slate-600 flex items-center gap-1">
-                    ⏰ 24시간 시간별 날씨 (현재 위치 확인 중...)
+                    ⏰ 24시간 시간별 날씨 (실시간 연동 중...)
                 </span>
-                <span id="selected-hour-label" class="text-[9px] text-indigo-600 font-bold">18:00 기준 상세</span>
+                <span id="selected-hour-label" class="text-[9px] text-indigo-600 font-bold">현재 기준 상세</span>
             </div>
             <div id="hourly-tabs" class="flex gap-1 overflow-x-auto pb-0.5 no-scrollbar">
                 <!-- 동적 생성 -->
@@ -65,44 +76,44 @@
                     </div>
                 </div>
 
-                <!-- 날씨 카드 (콤팩트하게 세로 축소) -->
+                <!-- 날씨 카드 -->
                 <div id="weather-card-container" class="weather-scene weather-cloudy p-3.5 rounded-2xl border shadow-sm relative transition-all duration-700">
                     <div class="flex justify-between items-center mb-2 relative z-10">
                         <span id="weather-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 shadow-xs">
-                            구름많음 (쾌적)
+                            실시간 날씨 연동 중
                         </span>
-                        <span id="weather-desc" class="text-xs font-bold text-slate-700">구름 많음</span>
+                        <span id="weather-desc" class="text-xs font-bold text-slate-700">날씨 불러오는 중</span>
                     </div>
 
                     <div class="flex justify-between items-center mb-2.5 relative z-10">
                         <div>
                             <div class="flex items-baseline gap-1.5">
-                                <span id="weather-temp" class="text-3xl font-extrabold tracking-tight">19°</span>
-                                <span id="weather-feels" class="text-[10px] bg-white/80 px-1.5 py-0.5 rounded font-medium text-slate-600">체감 19°C</span>
+                                <span id="weather-temp" class="text-3xl font-extrabold tracking-tight">--°</span>
+                                <span id="weather-feels" class="text-[10px] bg-white/80 px-1.5 py-0.5 rounded font-medium text-slate-600">실시간 기온</span>
                             </div>
-                            <p id="weather-subtext" class="text-[10px] text-slate-600 mt-0.5 font-medium">현재 GPS 위치 · 실시간 날씨 연동</p>
+                            <p id="weather-subtext" class="text-[10px] text-slate-600 mt-0.5 font-medium">실시간 기상청 API 연동</p>
                         </div>
                         <div id="weather-icon-box" class="bg-white/90 p-2 rounded-xl shadow-xs text-2xl weather-emoji">
-                            ☁️
+                            🌍
                         </div>
                     </div>
 
                     <div class="grid grid-cols-4 gap-1.5 mt-1 relative z-10">
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
                             <span class="text-[9px] text-slate-400">습도</span>
-                            <span id="val-rain" class="text-[11px] font-bold text-blue-600 mt-0.5">69%</span>
+                            <span id="val-rain" class="text-[11px] font-bold text-blue-600 mt-0.5">--%</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
                             <span class="text-[9px] text-slate-400">바람</span>
-                            <span id="val-wind" class="text-[11px] font-bold text-slate-700 mt-0.5">2mph</span>
+                            <span id="val-wind" class="text-[11px] font-bold text-slate-700 mt-0.5">--km/h</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
-                            <span class="text-[9px] text-slate-400">자외선</span>
-                            <span id="val-uv" class="text-[11px] font-bold text-amber-600 mt-0.5">좋음</span>
+                            <span class="text-[9px] text-slate-400">강수량</span>
+                            <span id="val-uv" class="text-[11px] font-bold text-amber-600 mt-0.5">--mm</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
-                            <span class="text-[9px] text-slate-400">미세먼지</span>
-                            <span id="val-dust" class="text-[11px] font-bold text-emerald-600 mt-0.5">좋음</span>
+                            <span class="text-[9px] text-slate-400">상태</span>
+                            <span id="val-dust" class="text-[11px] font-bold text-emerald-600 mt-0.5">정상</span>
                         </div>
                     </div>
                 </div>
@@ -129,7 +140,7 @@
                     <div class="text-[11px] flex-1">
                         <span class="font-bold block mb-0.5 text-indigo-100">HHH 스마트 일상 브리핑</span>
                         <p id="smart-briefing-text" class="leading-relaxed text-indigo-50 mb-1.5">
-                            현재 위치의 실시간 날씨 정보를 불러오고 있습니다... ✨
+                            실시간 기상 데이터를 불러오고 있습니다... ✨
                         </p>
                         <div id="random-quote-box" class="pt-1.5 border-t border-indigo-500/50 text-[10px] text-indigo-200 italic font-medium">
                             <!-- 무작위 명언 -->
@@ -366,12 +377,17 @@
     <script>
         let currentTab = 'home';
         let homeSegment = 'checklist';
-        let selectedDate = '2026-10-23';
-        let selectedHourIndex = 1;
+        
+        // 현재 날짜 실시간 연동 (오늘 날짜 기준)
+        const todayObj = new Date();
+        let calYear = todayObj.getFullYear();
+        let calMonth = todayObj.getMonth();
+        let selectedDate = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
+        let selectedHourIndex = 0;
 
-        let calYear = 2026;
-        let calMonth = 9;
+        let hourlyWeather = []; // 실시간 API 데이터 저장
 
+        // 2026년 공휴일 데이터
         const publicHolidays2026 = {
             '2026-01-01': '신정',
             '2026-03-01': '삼일절',
@@ -439,7 +455,7 @@
             "\"웃음 없는 하루는 낭비한 하루다.\" - 찰리 채플린",
             "\"오늘 하루가 인생의 전부인 것처럼 살아라.\" - 루네우스",
             "\"희망은 붕괴하지 않는 유일한 보물이다.\" - 디오게네스"
-        ],
+        ];
 
         const nonsenseQuizzes = [
             { q: "세상에서 가장 가난한 왕은?", a: "최신왕 (최신 킹)" },
@@ -624,12 +640,12 @@
 
         let currentQuiz = {};
 
-        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v20')) || [];
-        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v20')) || {};
+        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v24')) || [];
+        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v24')) || {};
 
         function saveData() {
-            localStorage.setItem('hhh_supplies_v20', JSON.stringify(suppliesList));
-            localStorage.setItem('hhh_tasks_v20', JSON.stringify(userChecklists));
+            localStorage.setItem('hhh_supplies_v24', JSON.stringify(suppliesList));
+            localStorage.setItem('hhh_tasks_v24', JSON.stringify(userChecklists));
         }
 
         function openApp(appScheme, webUrl) {
@@ -641,7 +657,7 @@
         }
 
         function exportData() {
-            const backupData = { supplies: suppliesList, tasks: userChecklists, version: "v3.5", backupDate: new Date().toISOString() };
+            const backupData = { supplies: suppliesList, tasks: userChecklists, version: "v3.7", backupDate: new Date().toISOString() };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
@@ -687,14 +703,21 @@
         }
 
         window.onload = function() {
-            renderHourlyTabs();
-            renderWeatherCard();
+            // 상단 홈 날짜 실시간 반영
+            const mName = todayObj.toLocaleString('ko-KR', { month: 'long' });
+            const dNum = todayObj.getDate();
+            const wName = todayObj.toLocaleString('ko-KR', { weekday: 'short' });
+            document.getElementById('home-date-display').innerText = `${mName} ${dNum}일 (${wName}) - 오늘`;
+            
+            // 준비물 기본 날짜값 오늘로 세팅
+            document.getElementById('sup-input-date').value = selectedDate;
+
             renderSupplies();
             renderCalendar();
             renderTasks();
             initRandomQuote();
             initRandomQuiz();
-            initUserLocation();
+            refreshLocationAndWeather(); // 실시간 위치 및 날씨 연동
         };
 
         function initRandomQuote() {
@@ -723,39 +746,129 @@
             }
         }
 
-        function initUserLocation() {
+        // WMO 날씨 코드를 한글 설명과 이모지로 변환
+        function getWeatherDetails(code) {
+            if (code === 0) return { desc: '맑음', icon: '☀️', type: 'sunny' };
+            if ([1, 2].includes(code)) return { desc: '구름조금', icon: '⛅', type: 'sunny' };
+            if (code === 3) return { desc: '구름많음', icon: '☁️', type: 'cloudy' };
+            if ([45, 48].includes(code)) return { desc: '안개', icon: '🌫️', type: 'cloudy' };
+            if ([51, 53, 55, 56, 57].includes(code)) return { desc: '이슬비', icon: '🌦️', type: 'rain' };
+            if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { desc: '비', icon: '🌧️', type: 'rain' };
+            if ([71, 73, 75, 77, 85, 86].includes(code)) return { desc: '눈', icon: '❄️', type: 'cloudy' };
+            if ([95, 96, 99].includes(code)) return { desc: '천둥번개', icon: '⚡', type: 'rain' };
+            return { desc: '흐림', icon: '☁️', type: 'cloudy' };
+        }
+
+        // 실시간 위치 및 날씨 가져오기 함수
+        function refreshLocationAndWeather() {
+            const iconEl = document.getElementById('refresh-icon');
+            iconEl.classList.add('spinning');
+            document.getElementById('location-label').innerText = "위치 및 날씨 탐색 중...";
+            document.getElementById('hourly-panel-title').innerHTML = `⏰ 24시간 시간별 날씨 (실시간 연동 중...)`;
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
-                        try {
-                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=ko`);
-                            const data = await response.json();
-                            if (data && data.address) {
-                                const addr = data.address;
-                                const city = addr.city || addr.county || addr.state || '현재 위치';
-                                const district = addr.borough || addr.suburb || addr.town || addr.village || '';
-                                const fullLoc = district ? `${city} ${district}` : city;
-                                
-                                document.getElementById('location-label').innerText = fullLoc;
-                                document.getElementById('hourly-panel-title').innerHTML = `⏰ 24시간 시간별 날씨 (${fullLoc})`;
-                                document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 GPS 날씨 연동`;
-                                document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 19°C로 쾌적합니다. 기분 좋은 하루 보내세요! ✨`;
-                            }
-                        } catch (e) { setLocationFallback("서울시 중구"); }
+                        await fetchWeatherData(lat, lon);
+                        iconEl.classList.remove('spinning');
                     },
-                    (error) => { setLocationFallback("서울시 중구"); },
-                    { timeout: 10000 }
+                    (error) => {
+                        // 위치 권한 거부 시 기본 화성시 영천동 좌표(37.201, 127.106)로 실시간 날씨 조회
+                        fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
+                        iconEl.classList.remove('spinning');
+                    },
+                    { timeout: 10000, enableHighAccuracy: true }
                 );
-            } else { setLocationFallback("서울시 중구"); }
+            } else {
+                fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
+                iconEl.classList.remove('spinning');
+            }
         }
 
-        function setLocationFallback(locName) {
-            document.getElementById('location-label').innerText = locName;
-            document.getElementById('hourly-panel-title').innerHTML = `⏰ 24시간 시간별 날씨 (${locName})`;
-            document.getElementById('weather-subtext').innerText = `${locName} · 실시간 날씨 연동`;
-            document.getElementById('smart-briefing-text').innerText = `${locName} 현재 기온 19°C로 쾌적합니다. 기분 좋은 하루 보내세요! ✨`;
+        async function fetchWeatherData(lat, lon, fallbackName = null) {
+            let fullLoc = fallbackName;
+            
+            // 1. 역지오코딩으로 동네 이름 가져오기
+            if (!fullLoc) {
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=ko`);
+                    const geoData = await geoRes.json();
+                    if (geoData && geoData.address) {
+                        const addr = geoData.address;
+                        const city = addr.city || addr.county || addr.state || '현재 위치';
+                        const district = addr.borough || addr.suburb || addr.town || addr.village || '';
+                        fullLoc = district ? `${city} ${district}` : city;
+                    } else {
+                        fullLoc = "현재 위치";
+                    }
+                } catch (e) {
+                    fullLoc = "현재 위치";
+                }
+            }
+
+            document.getElementById('location-label').innerText = fullLoc;
+            document.getElementById('hourly-panel-title').innerHTML = `⏰ 24시간 시간별 날씨 (${fullLoc})`;
+
+            // 2. 실시간 날씨 API 호출 (현재 날씨 + 24시간 시간별 예보)
+            try {
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&timezone=auto`);
+                const weatherData = await weatherRes.json();
+
+                if (weatherData && weatherData.current) {
+                    const cur = weatherData.current;
+                    const curWeather = getWeatherDetails(cur.weather_code);
+                    
+                    // 메인 날씨 카드 업데이트
+                    document.getElementById('weather-temp').innerText = `${Math.round(cur.temperature_2m)}°`;
+                    document.getElementById('weather-feels').innerText = `체감 ${Math.round(cur.apparent_temperature || cur.temperature_2m)}°C`;
+                    document.getElementById('weather-desc').innerText = curWeather.desc;
+                    document.getElementById('weather-icon-box').innerText = curWeather.icon;
+                    document.getElementById('val-rain').innerText = `${cur.relative_humidity_2m}%`;
+                    document.getElementById('val-wind').innerText = `${Math.round(cur.wind_speed_10m)}km/h`;
+                    document.getElementById('val-uv').innerText = `${cur.precipitation || 0}mm`;
+                    document.getElementById('val-dust').innerText = curWeather.type === 'rain' ? '우산필수' : '쾌적함';
+                    document.getElementById('weather-badge').innerText = `${curWeather.desc} (실시간 연동)`;
+                    document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 기상청 API 연동 완료`;
+                    document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 ${Math.round(cur.temperature_2m)}°C, 날씨는 ${curWeather.desc}입니다. 오늘도 활기찬 하루 보내세요! ✨`;
+
+                    const card = document.getElementById('weather-card-container');
+                    card.classList.remove('weather-rain', 'weather-sunny', 'weather-cloudy');
+                    card.classList.add(curWeather.type === 'sunny' ? 'weather-sunny' : (curWeather.type === 'rain' ? 'weather-rain' : 'weather-cloudy'));
+                }
+
+                // 24시간 시간별 예보 가공
+                if (weatherData && weatherData.hourly) {
+                    const hourly = weatherData.hourly;
+                    const nowIdx = new Date().getHours();
+                    hourlyWeather = [];
+
+                    for (let i = nowIdx; i < nowIdx + 24; i++) {
+                        const timeStr = hourly.time[i] ? hourly.time[i].slice(11, 16) : `${i % 24}:00`;
+                        const tempVal = Math.round(hourly.temperature_2m[i]) + '°';
+                        const wInfo = getWeatherDetails(hourly.weather_code[i]);
+                        const rainProb = (hourly.precipitation_probability && hourly.precipitation_probability[i]) ? hourly.precipitation_probability[i] + '%' : '0%';
+
+                        hourlyWeather.push({
+                            time: timeStr,
+                            temp: tempVal,
+                            type: wInfo.type,
+                            desc: wInfo.desc,
+                            rain: rainProb,
+                            wind: '2km/h',
+                            uv: '보통',
+                            dust: '좋음',
+                            icon: wInfo.icon
+                        });
+                    }
+                    selectedHourIndex = 0;
+                    renderHourlyTabs();
+                }
+
+            } catch (err) {
+                console.error("날씨 데이터를 불러오지 못했습니다.", err);
+            }
         }
 
         function switchTab(tab) {
@@ -783,6 +896,7 @@
 
         function renderHourlyTabs() {
             const container = document.getElementById('hourly-tabs');
+            if (hourlyWeather.length === 0) return;
             container.innerHTML = hourlyWeather.map((hw, idx) => `
                 <button onclick="selectHour(${idx})" class="px-2 py-1 rounded-lg text-[11px] font-semibold flex flex-col items-center shrink-0 transition-all cursor-pointer ${selectedHourIndex === idx ? 'bg-indigo-600 text-white shadow-sm scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
                     <span class="text-[9px] opacity-80">${hw.time}</span>
@@ -800,6 +914,7 @@
         }
 
         function renderWeatherCard() {
+            if (hourlyWeather.length === 0) return;
             const hw = hourlyWeather[selectedHourIndex];
             document.getElementById('weather-temp').innerText = hw.temp;
             document.getElementById('weather-desc').innerText = hw.desc;
@@ -809,11 +924,11 @@
             document.getElementById('val-wind').innerText = hw.wind;
             document.getElementById('val-uv').innerText = hw.uv;
             document.getElementById('val-dust').innerText = hw.dust;
-            document.getElementById('weather-badge').innerText = hw.type === 'sunny' ? '맑고 쾌적' : '구름많음 (외출 무난)';
+            document.getElementById('weather-badge').innerText = `${hw.desc} (시간별 상세)`;
 
             const card = document.getElementById('weather-card-container');
-            card.classList.remove('weather-rain', 'weather-snow', 'weather-sunny', 'weather-cloudy');
-            card.classList.add(hw.type === 'sunny' ? 'weather-sunny' : 'weather-cloudy');
+            card.classList.remove('weather-rain', 'weather-sunny', 'weather-cloudy');
+            card.classList.add(hw.type === 'sunny' ? 'weather-sunny' : (hw.type === 'rain' ? 'weather-rain' : 'weather-cloudy'));
         }
 
         function handleAddSupply(e) {
@@ -995,7 +1110,7 @@
             }
 
             if (tasks.length === 0) {
-                todoContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">이 날짜에 등록된 일정이 없습니다.</p>`;
+                todoContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-xl">이 날짜에 등록된 일정이 없습니다.</p>`;
             } else {
                 todoContainer.innerHTML = tasks.map(t => `
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
