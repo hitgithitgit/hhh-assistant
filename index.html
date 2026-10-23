@@ -2,392 +2,783 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HHH 비서 앱</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; background-color: #0f172a; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 날씨 이모지 기본 모션 */
+        @keyframes weatherFloat {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-5px) rotate(3deg); }
         }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        @keyframes weatherRain {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(3px); }
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        @keyframes weatherSun {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(12deg) scale(1.08); }
+        }
+        .weather-emoji { display: inline-block; transform-origin: center; animation: weatherFloat 2.2s ease-in-out infinite; }
+        .weather-emoji-rain { animation: weatherRain 0.9s ease-in-out infinite; }
+        .weather-emoji-sun { animation: weatherSun 3s ease-in-out infinite; }
+
+        .weather-scene { isolation: isolate; position: relative; overflow: hidden; }
+
+        /* 1. 비 올 때 */
+        .weather-scene.weather-rain {
+            background: linear-gradient(135deg, #d8f1f8 0%, #bce3ee 50%, #dbe6fe 100%) !important;
+            border-color: #b0def0 !important;
+        }
+        @keyframes rainDropFall {
+            0% { transform: translateY(-10px) scaleY(0.8); opacity: 0; }
+            30% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { transform: translateY(110px) scaleY(1.1); opacity: 0; }
+        }
+        .rain-drop {
+            position: absolute; top: -10px; color: #38bdf8; font-size: 14px;
+            pointer-events: none; user-select: none; opacity: 0;
+            animation: rainDropFall 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* 2. 구름 많음 */
+        .weather-scene.weather-cloudy {
+            background: linear-gradient(135deg, #e4ebf5 0%, #d5e2f0 50%, #e2deee 100%) !important;
+            border-color: #c4d5ea !important;
+        }
+        @keyframes cloudFloatPass {
+            0% { transform: translateX(-80px); opacity: 0; }
+            15% { opacity: 0.85; }
+            85% { opacity: 0.85; }
+            100% { transform: translateX(360px); opacity: 0; }
+        }
+        .cloud-item {
+            position: absolute; pointer-events: none; user-select: none;
+            left: 0;
+            animation: cloudFloatPass 7s linear infinite;
+        }
+
+        /* 3. 맑음 */
+        .weather-scene.weather-sunny {
+            background: linear-gradient(135deg, #fff3d6 0%, #ffe3b3 50%, #fcd9df 100%) !important;
+            border-color: #f7d197 !important;
+        }
+        @keyframes sunPulseGlow {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+            50% { transform: scale(1.1) rotate(15deg); opacity: 1; }
+        }
+        .sunny-sun-bg {
+            position: absolute; top: -15px; right: -15px; width: 110px; height: 110px;
+            background: radial-gradient(circle, rgba(255, 200, 80, 0.45) 0%, rgba(255, 230, 150, 0.25) 45%, transparent 70%);
+            border-radius: 50%; pointer-events: none; animation: sunPulseGlow 4s ease-in-out infinite;
+        }
+
+        /* 4. 바람 불 때 */
+        .weather-scene.weather-windy {
+            background: linear-gradient(135deg, #d1fae5 0%, #c1f0e8 45%, #dbeafe 100%) !important;
+            border-color: #a7f3d0 !important;
+        }
+        @keyframes windStream {
+            0% { transform: translateX(-80px) translateY(0) scaleX(0.5); opacity: 0; }
+            30% { opacity: 0.9; transform: scaleX(1); }
+            70% { opacity: 0.9; }
+            100% { transform: translateX(340px) translateY(-15px) scaleX(0.7); opacity: 0; }
+        }
+        @keyframes leafFly {
+            0% { transform: translateX(-80px) translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { transform: translateX(320px) translateY(-30px) rotate(360deg); opacity: 0; }
+        }
+        .wind-line-strong {
+            position: absolute; height: 4px; background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.75), transparent);
+            border-radius: 4px; pointer-events: none; animation: windStream 2.5s ease-in-out infinite;
+        }
+        .wind-leaf {
+            position: absolute; font-size: 14px; pointer-events: none;
+            animation: leafFly 2.2s ease-in-out infinite;
+        }
+
+        /* 5. 눈 내릴 때 */
+        .weather-scene.weather-snow {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f3e8ff 100%) !important;
+            border-color: #c7d2fe !important;
+        }
+        @keyframes snowFallFlake {
+            0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+            20% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { transform: translateY(120px) translateX(15px); opacity: 0.2; }
+        }
+        .snow-flake {
+            position: absolute; top: -15px; border-radius: 50%; background-color: #ffffff;
+            box-shadow: 0 0 6px rgba(199, 210, 254, 0.9); pointer-events: none; user-select: none;
+            animation: snowFallFlake 3.8s linear infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .weather-emoji, .rain-drop, .cloud-item, .wind-line-strong, .snow-flake { animation: none !important; }
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 flex justify-center">
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
 
-    <!-- Mobile Container -->
-    <div class="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col relative pb-20">
+    <!-- 모바일 앱 프레임 -->
+    <div class="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl flex flex-col h-screen sm:h-[880px] overflow-hidden relative">
         
-        <!-- Header -->
-        <header class="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-b-3xl shadow-md">
-            <div class="flex justify-between items-center mb-4">
+        <!-- 상단 헤더 -->
+        <div class="px-5 pt-4 pb-2 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">H</div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">HHH 비서</h1>
-                    <p class="text-xs text-blue-100 opacity-90 mt-0.5">오늘도 스마트한 하루 보내세요!</p>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
-                    <i class="fa-solid me-0 fa-user-astronaut text-white text-lg"></i>
+                    <div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                        HHH 비서 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.5</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400">스마트 일상 파트너</p>
                 </div>
             </div>
+            <span class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full font-bold">실시간 연동</span>
+        </div>
 
-            <!-- Mini Weather Bar -->
-            <div id="weather-card" class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 flex items-center justify-between text-sm">
-                <div class="flex items-center space-x-3">
-                    <div id="weather-icon" class="text-2xl text-yellow-300">
-                        <i class="fa-solid fa-sun animate-pulse"></i>
+        <!-- 3시간 간격 24시간 날씨 탭 -->
+        <div id="hourly-weather-panel" class="bg-slate-50 border-b border-slate-200 px-3 py-2.5 shrink-0">
+            <div class="flex justify-between items-center mb-1.5 px-1">
+                <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                    ⏰ 24시간 시간별 날씨
+                </span>
+                <span id="selected-hour-label" class="text-[10px] text-indigo-600 font-bold">09:00 기준 상세</span>
+            </div>
+            <div id="hourly-tabs" class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                <!-- 동적 생성 -->
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 스크롤 영역 -->
+        <div id="main-scroll-area" class="flex-1 overflow-y-auto pb-24">
+            
+            <!-- 1. HOME 탭 -->
+            <div id="tab-home" class="p-4 space-y-4">
+                
+                <!-- 날짜 및 위치 -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
+                        📅 <span id="home-date-display">10월 23일 (금) - 오늘</span>
                     </div>
-                    <div>
-                        <div class="font-semibold text-white flex items-center space-x-1">
-                            <span id="weather-temp">22°C</span>
-                            <span class="text-xs opacity-75">|</span>
-                            <span id="weather-desc" class="text-xs font-normal">맑음</span>
+                    <div class="flex items-center gap-1.5 text-xs bg-slate-100 px-3 py-1.5 rounded-full text-slate-600 font-medium">
+                        📍 <span>화성시 동탄동</span>
+                    </div>
+                </div>
+
+                <!-- 날씨 카드 -->
+                <div id="weather-card-container" class="weather-scene weather-rain p-5 rounded-3xl border shadow-sm relative transition-all duration-700">
+                    
+                    <!-- 애니메이션 오버레이 레이어 -->
+                    <div id="weather-fx-layer" class="absolute inset-0 pointer-events-none z-0"></div>
+
+                    <div class="flex justify-between items-center mb-3 relative z-10">
+                        <span id="weather-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-xs">
+                            비 내림 (우산 필요)
+                        </span>
+                        <span id="weather-desc" class="text-sm font-bold text-slate-700">비 집중</span>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4 relative z-10">
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span id="weather-temp" class="text-4xl font-extrabold tracking-tight">14°</span>
+                                <span id="weather-feels" class="text-xs bg-white/80 px-2 py-1 rounded-md font-medium text-slate-600">체감 12°C</span>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-1 font-medium">화성시 동탄동 · 실시간 예보</p>
                         </div>
-                        <p class="text-[11px] text-blue-100">화성시 영천동 기준</p>
+                        <div id="weather-icon-box" class="bg-white/90 p-3 rounded-2xl shadow-xs text-3xl">
+                            🌧️
+                        </div>
+                    </div>
+
+                    <!-- 2x2 수치 카드 -->
+                    <div class="grid grid-cols-2 gap-2 mt-2 relative z-10">
+                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
+                            <span class="text-xs text-slate-500">강수확률</span>
+                            <span id="val-rain" class="text-xs font-bold text-blue-600">80%</span>
+                        </div>
+                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
+                            <span class="text-xs text-slate-500">바람</span>
+                            <span id="val-wind" class="text-xs font-bold text-slate-700">3m/s</span>
+                        </div>
+                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
+                            <span class="text-xs text-slate-500">자외선</span>
+                            <span id="val-uv" class="text-xs font-bold text-amber-600">보통</span>
+                        </div>
+                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
+                            <span class="text-xs text-slate-500">미세먼지</span>
+                            <span id="val-dust" class="text-xs font-bold text-rose-500">나쁨</span>
+                        </div>
                     </div>
                 </div>
-                <button onclick="fetchWeather()" class="text-xs bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-lg transition text-white">
-                    <i class="fa-solid fa-rotate-right mr-1"></i>갱신
-                </button>
+
+                <!-- 스마트 일상 브리핑 -->
+                <div class="bg-indigo-600 text-white p-4 rounded-2xl flex items-start gap-3 shadow-md">
+                    <span class="text-xl">💡</span>
+                    <div class="text-xs">
+                        <span class="font-bold block mb-1 text-indigo-100">HHH 스마트 일상 브리핑</span>
+                        <p id="smart-briefing-text" class="leading-relaxed text-indigo-50">
+                            비 소식과 미세먼지가 겹쳤어요. 우산과 KF94 마스크를 꼭 챙기세요! ☔
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 홈 서브 탭 (준비물 / 할 일 전환) -->
+                <div class="flex bg-slate-200/70 p-1 rounded-2xl">
+                    <button onclick="switchHomeSegment('checklist')" id="seg-btn-checklist" class="flex-1 py-2 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all cursor-pointer">
+                        오늘의 준비물 모아보기
+                    </button>
+                    <button onclick="switchHomeSegment('tasks')" id="seg-btn-tasks" class="flex-1 py-2 text-xs font-bold rounded-xl text-slate-600 transition-all cursor-pointer">
+                        오늘의 일정
+                    </button>
+                </div>
+
+                <!-- 홈 화면 준비물 리스트 -->
+                <div id="home-checklist-view" class="space-y-3">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">🎒 필수 고정 및 오늘 날짜 준비물</h3>
+                    <div id="home-supplies-container" class="space-y-2">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+
+                <!-- 홈 화면 일정 리스트 -->
+                <div id="home-tasks-view" class="space-y-2 hidden">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">📝 오늘의 등록된 일정</h3>
+                    <div id="home-tasks-container" class="space-y-2">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+
             </div>
-        </header>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 p-5 space-y-6">
+            <!-- 2. 준비물 탭 -->
+            <div id="tab-supplies" class="p-4 space-y-4 hidden">
+                <!-- 준비물 추가 폼 -->
+                <form onsubmit="handleAddSupply(event)" class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700">새로운 준비물 추가</h4>
+                    <input type="text" id="sup-input-text" placeholder="예: 우산, 노트북, 마스크, 보조배터리..." required
+                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">필요한 날짜 지정</label>
+                            <input type="date" id="sup-input-date" value="2026-10-23"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+                        </div>
+                    </div>
 
-            <!-- TAB 1: 준비물 (Checklist) -->
-            <section id="tab-supplies" class="tab-content space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-box-archive text-blue-500"></i> 외출 준비물
-                    </h2>
-                    <span id="supplies-count" class="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-0.5 rounded-full">0/0</span>
-                </div>
-
-                <!-- Input Box -->
-                <div class="flex gap-2">
-                    <input type="text" id="supply-input" placeholder="새 준비물 입력..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition">
-                    <button onclick="addSupply()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md active:scale-95 transition">
-                        추가
-                    </button>
-                </div>
-
-                <!-- List -->
-                <ul id="supplies-list" class="space-y-2">
-                    <!-- Items rendered dynamically -->
-                </ul>
-            </section>
-
-            <!-- TAB 2: 할 일 (Todo) -->
-            <section id="tab-todos" class="tab-content hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-indigo-500"></i> 오늘 할 일
-                    </h2>
-                    <span id="todos-count" class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-0.5 rounded-full">0/0</span>
-                </div>
-
-                <!-- Input Box -->
-                <div class="flex gap-2">
-                    <input type="text" id="todo-input" placeholder="할 일 추가하기..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition">
-                    <button onclick="addTodo()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md active:scale-95 transition">
-                        추가
-                    </button>
-                </div>
-
-                <!-- List -->
-                <ul id="todos-list" class="space-y-2">
-                    <!-- Items rendered dynamically -->
-                </ul>
-            </section>
-
-            <!-- TAB 3: 설정 및 데이터 백업/복원 -->
-            <section id="tab-settings" class="tab-content hidden space-y-5">
-                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-gear text-slate-600"></i> 설정 및 데이터 보관
-                </h2>
-
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <h3 class="font-semibold text-sm text-slate-700">데이터 백업 & 복원</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        브라우저 캐시 삭제 시 데이터 유실을 방지하려면 주기적으로 백업 파일을 보관해 주세요.
-                    </p>
-                    <div class="grid grid-cols-2 gap-3 pt-1">
-                        <button onclick="exportData()" class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white py-2.5 px-3 rounded-xl text-xs font-medium shadow-sm transition">
-                            <i class="fa-solid fa-download"></i> 백업 다운로드
-                        </button>
-                        <label class="flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2.5 px-3 rounded-xl text-xs font-medium shadow-sm cursor-pointer transition">
-                            <i class="fa-solid fa-upload"></i> 백업 복원하기
-                            <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="sup-input-essential" class="w-4 h-4 text-indigo-600 rounded border-slate-300">
+                            <span class="text-xs font-bold text-slate-700">⭐ 필수고정 항목 지정</span>
                         </label>
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors cursor-pointer">
+                            + 추가하기
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 전체 준비물 목록 -->
+                <div class="space-y-2 pt-2">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">등록된 전체 준비물 목록</h4>
+                    <div id="all-supplies-list" class="space-y-2">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 할 일 탭 -->
+            <div id="tab-todo" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <span id="cal-title" class="font-bold text-sm text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-xl">2026년 10월</span>
+                        <div class="flex gap-1">
+                            <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-xs font-bold cursor-pointer">◀</button>
+                            <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-xs font-bold cursor-pointer">▶</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-7 text-center text-xs font-bold text-slate-400 mb-1">
+                        <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-xs">
+                        <!-- 동적 생성 -->
                     </div>
                 </div>
 
-                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-xs text-amber-800 space-y-1">
-                    <div class="font-semibold flex items-center gap-1.5 text-amber-900">
-                        <i class="fa-solid fa-circle-info"></i> 데이터 저장 방식 안내
+                <!-- 할 일 추가 및 리스트 -->
+                <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 id="selected-date-todo-title" class="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            📌 10월 23일 일정 관리
+                        </h3>
                     </div>
-                    <p>모든 데이터는 기기의 로컬 저장소(LocalStorage)에 실시간으로 자동 저장됩니다. 폰을 껐다 켜거나 앱을 종료해도 안전하게 유지됩니다.</p>
+
+                    <form onsubmit="handleAddTask(event)" class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                        <input type="text" id="task-input-text" placeholder="새로운 할 일을 입력하세요..." required
+                            class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <div class="flex gap-2">
+                            <input type="time" id="task-input-time" value="14:00"
+                                class="px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium">
+                            <button type="submit" class="flex-1 bg-indigo-600 text-white rounded-xl text-xs font-bold py-1.5 hover:bg-indigo-700 cursor-pointer">
+                                + 일정 추가
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="todo-list-container" class="space-y-2 pt-1">
+                        <!-- 동적 생성 -->
+                    </div>
                 </div>
-            </section>
+            </div>
 
-        </main>
+        </div>
 
-        <!-- Bottom Navigation Bar -->
-        <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 flex justify-around py-2.5 shadow-lg z-50">
-            <button onclick="switchTab('supplies')" id="nav-supplies" class="nav-btn flex flex-col items-center gap-1 text-blue-600">
-                <i class="fa-solid fa-box-archive text-lg"></i>
-                <span class="text-[11px] font-medium">준비물</span>
+        <!-- 하단 네비게이션 바 -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-20 shadow-lg">
+            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-indigo-600 scale-105 font-bold transition-all cursor-pointer">
+                <span class="text-lg">🏠</span>
+                <span class="text-[11px]">홈</span>
             </button>
-            <button onclick="switchTab('todos')" id="nav-todos" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
-                <i class="fa-solid fa-list-check text-lg"></i>
-                <span class="text-[11px] font-medium">할 일</span>
+            <button onclick="switchTab('supplies')" id="nav-supplies" class="flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer">
+                <span class="text-lg">🎒</span>
+                <span class="text-[11px]">준비물</span>
             </button>
-            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
-                <i class="fa-solid fa-gear text-lg"></i>
-                <span class="text-[11px] font-medium">설정</span>
+            <button onclick="switchTab('todo')" id="nav-todo" class="flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer">
+                <span class="text-lg">📝</span>
+                <span class="text-[11px]">할 일</span>
             </button>
-        </nav>
+        </div>
 
     </div>
 
-    <!-- Script -->
+    <!-- JavaScript 로직 -->
     <script>
-        // State
-        let supplies = [];
-        let todos = [];
+        // 앱 상태 데이터
+        let currentTab = 'home';
+        let homeSegment = 'checklist';
+        let selectedDate = '2026-10-23';
+        let selectedHourIndex = 3; // 09:00 기준
 
-        // Initial Default Data
-        const defaultSupplies = [
-            { id: 1, text: '스마트폰 & 차키', checked: false },
-            { id: 2, text: '지갑 / 카드', checked: false },
-            { id: 3, text: '무선 이어폰', checked: false }
+        let calYear = 2026;
+        let calMonth = 9; // 0-indexed (9 = 10월)
+
+        // 24시간 3시간 간격 날씨 데이터
+        const hourlyWeather = [
+            { time: '00:00', temp: '11°', type: 'cloudy', desc: '구름많음', rain: '20%', wind: '2m/s', uv: '낮음', dust: '보통', icon: '☁️' },
+            { time: '03:00', temp: '10°', type: 'rain', desc: '비 시작', rain: '70%', wind: '3m/s', uv: '낮음', dust: '나쁨', icon: '🌧️' },
+            { time: '06:00', temp: '12°', type: 'rain', desc: '비 내림', rain: '80%', wind: '3m/s', uv: '낮음', dust: '나쁨', icon: '🌧️' },
+            { time: '09:00', temp: '14°', type: 'rain', desc: '비 집중', rain: '90%', wind: '4m/s', uv: '보통', dust: '나쁨', icon: '🌧️' },
+            { time: '12:00', temp: '15°', type: 'cloudy', desc: '흐림', rain: '30%', wind: '3m/s', uv: '보통', dust: '보통', icon: '☁️' },
+            { time: '15:00', temp: '16°', type: 'sunny', desc: '구름틈 맑음', rain: '10%', wind: '2m/s', uv: '높음', dust: '좋음', icon: '☀️' },
+            { time: '18:00', temp: '13°', type: 'windy', desc: '강풍 주의', rain: '0%', wind: '7m/s', uv: '낮음', dust: '좋음', icon: '🌬️' },
+            { time: '21:00', temp: '11°', type: 'snow', desc: '내일 새벽 눈/비 예고', rain: '60%', wind: '5m/s', uv: '낮음', dust: '보통', icon: '❄️' },
         ];
 
-        const defaultTodos = [
-            { id: 1, text: 'HHH 비서 앱 설치 테스트하기', checked: true },
-            { id: 2, text: '오늘 날씨 확인하고 준비물 챙기기', checked: false }
+        // 준비물 리스트
+        let suppliesList = [
+            { id: 1, text: '지갑 👛', isEssential: true, date: '2026-10-23' },
+            { id: 2, text: '핸드폰 📱', isEssential: true, date: '2026-10-23' },
+            { id: 3, text: '에어팟 🎧', isEssential: true, date: '2026-10-23' },
+            { id: 4, text: '우산 ☔', isEssential: false, date: '2026-10-23' },
+            { id: 5, text: '회의 자료 📁', isEssential: false, date: '2026-10-30' },
         ];
 
-        // Load Data safely
-        function loadData() {
-            try {
-                const savedSupplies = localStorage.getItem('hhh_supplies');
-                const savedTodos = localStorage.getItem('hhh_todos');
+        // 일정 리스트
+        let userChecklists = {
+            '2026-10-23': [
+                { id: 1, text: '팀 회의 자료 최종 검토', completed: false, time: '14:00' },
+                { id: 2, text: '오후 미팅 장소 예약 확인', completed: true, time: '16:00' }
+            ],
+            '2026-10-30': [
+                { id: 3, text: '프로젝트 최종 발표', completed: false, time: '10:00' }
+            ]
+        };
 
-                supplies = savedSupplies ? JSON.parse(savedSupplies) : [...defaultSupplies];
-                todos = savedTodos ? JSON.parse(savedTodos) : [...defaultTodos];
-            } catch (e) {
-                console.error("Failed to load local data", e);
-                supplies = [...defaultSupplies];
-                todos = [...defaultTodos];
-            }
+        // 자동 이모지 매칭 함수
+        function getAutoEmojiText(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('우산') || lower.includes('비')) return text.includes('☔') ? text : `${text} ☔`;
+            if (lower.includes('마스크') || lower.includes('황사')) return text.includes('😷') ? text : `${text} 😷`;
+            if (lower.includes('지갑') || lower.includes('카드')) return text.includes('👛') ? text : `${text} 👛`;
+            if (lower.includes('폰') || lower.includes('핸드폰')) return text.includes('📱') ? text : `${text} 📱`;
+            if (lower.includes('이어폰') || lower.includes('에어팟')) return text.includes('🎧') ? text : `${text} 🎧`;
+            if (lower.includes('패딩') || lower.includes('코트')) return text.includes('🧥') ? text : `${text} 🧥`;
+            if (lower.includes('노트북') || lower.includes('맥북')) return text.includes('💻') ? text : `${text} 💻`;
+            if (lower.includes('충전기') || lower.includes('배터리')) return text.includes('🔋') ? text : `${text} 🔋`;
+            return text;
+        }
+
+        // 초기 렌더링
+        window.onload = function() {
+            renderHourlyTabs();
+            renderWeatherCard();
             renderSupplies();
-            renderTodos();
-        }
+            renderCalendar();
+            renderTasks();
+            updateSmartBriefing();
+        };
 
-        // Save Data safely
-        function saveData() {
-            try {
-                localStorage.setItem('hhh_supplies', JSON.stringify(supplies));
-                localStorage.setItem('hhh_todos', JSON.stringify(todos));
-            } catch (e) {
-                console.error("Failed to save data", e);
-            }
-        }
-
-        // Render Supplies List
-        function renderSupplies() {
-            const listEl = document.getElementById('supplies-list');
-            const countEl = document.getElementById('supplies-count');
-            listEl.innerHTML = '';
-
-            const completedCount = supplies.filter(s => s.checked).length;
-            countEl.textContent = `${completedCount}/${supplies.length}`;
-
-            supplies.forEach((item) => {
-                const li = document.createElement('li');
-                li.className = `flex items-center justify-between p-3.5 rounded-xl border transition ${
-                    item.checked ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 text-slate-700 shadow-sm'
-                }`;
-                li.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleSupply(${item.id})">
-                        <input type="checkbox" ${item.checked ? 'checked' : ''} class="w-5 h-5 rounded text-blue-600 focus:ring-0 cursor-pointer">
-                        <span class="text-sm font-medium ${item.checked ? 'line-through' : ''}">${escapeHtml(item.text)}</span>
-                    </div>
-                    <button onclick="deleteSupply(${item.id})" class="text-slate-300 hover:text-red-500 p-1 transition">
-                        <i class="fa-solid fa-trash-can text-sm"></i>
-                    </button>
-                `;
-                listEl.appendChild(li);
-            });
-        }
-
-        // Render Todos List
-        function renderTodos() {
-            const listEl = document.getElementById('todos-list');
-            const countEl = document.getElementById('todos-count');
-            listEl.innerHTML = '';
-
-            const completedCount = todos.filter(t => t.checked).length;
-            countEl.textContent = `${completedCount}/${todos.length}`;
-
-            todos.forEach((item) => {
-                const li = document.createElement('li');
-                li.className = `flex items-center justify-between p-3.5 rounded-xl border transition ${
-                    item.checked ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 text-slate-700 shadow-sm'
-                }`;
-                li.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleTodo(${item.id})">
-                        <input type="checkbox" ${item.checked ? 'checked' : ''} class="w-5 h-5 rounded text-indigo-600 focus:ring-0 cursor-pointer">
-                        <span class="text-sm font-medium ${item.checked ? 'line-through' : ''}">${escapeHtml(item.text)}</span>
-                    </div>
-                    <button onclick="deleteTodo(${item.id})" class="text-slate-300 hover:text-red-500 p-1 transition">
-                        <i class="fa-solid fa-trash-can text-sm"></i>
-                    </button>
-                `;
-                listEl.appendChild(li);
-            });
-        }
-
-        // Add Supply
-        function addSupply() {
-            const input = document.getElementById('supply-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            supplies.push({ id: Date.now(), text: text, checked: false });
-            input.value = '';
-            saveData();
-            renderSupplies();
-        }
-
-        // Toggle Supply
-        function toggleSupply(id) {
-            supplies = supplies.map(s => s.id === id ? { ...s, checked: !s.checked } : s);
-            saveData();
-            renderSupplies();
-        }
-
-        // Delete Supply
-        function deleteSupply(id) {
-            supplies = supplies.filter(s => s.id !== id);
-            saveData();
-            renderSupplies();
-        }
-
-        // Add Todo
-        function addTodo() {
-            const input = document.getElementById('todo-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            todos.push({ id: Date.now(), text: text, checked: false });
-            input.value = '';
-            saveData();
-            renderTodos();
-        }
-
-        // Toggle Todo
-        function toggleTodo(id) {
-            todos = todos.map(t => t.id === id ? { ...t, checked: !t.checked } : t);
-            saveData();
-            renderTodos();
-        }
-
-        // Delete Todo
-        function deleteTodo(id) {
-            todos = todos.filter(t => t.id !== id);
-            saveData();
-            renderTodos();
-        }
-
-        // Switch Tabs
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('text-blue-600', 'text-indigo-600');
-                el.classList.add('text-slate-400');
-            });
-
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            const activeNav = document.getElementById(`nav-${tabName}`);
-            
-            if (tabName === 'supplies') activeNav.classList.replace('text-slate-400', 'text-blue-600');
-            else if (tabName === 'todos') activeNav.classList.replace('text-slate-400', 'text-indigo-600');
-            else activeNav.classList.replace('text-slate-400', 'text-slate-800');
-        }
-
-        // Export Data
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ supplies, todos }, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `hhh_assistant_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        // Import Data
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported.supplies && imported.todos) {
-                        supplies = imported.supplies;
-                        todos = imported.todos;
-                        saveData();
-                        renderSupplies();
-                        renderTodos();
-                        alert('데이터 복원이 성공적으로 완료되었습니다!');
-                    } else {
-                        alert('올바르지 않은 백업 파일 형식입니다.');
-                    }
-                } catch (err) {
-                    alert('파일을 읽는 중 오류가 발생했습니다.');
+        // 탭 전환
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('hourly-weather-panel').classList.toggle('hidden', tab !== 'home');
+            ['home', 'supplies', 'todo'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (t === tab) {
+                    navBtn.className = 'flex flex-col items-center gap-1 text-indigo-600 scale-105 font-bold transition-all cursor-pointer';
+                } else {
+                    navBtn.className = 'flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer';
                 }
+            });
+        }
+
+        // 홈 서브 탭 전환
+        function switchHomeSegment(seg) {
+            homeSegment = seg;
+            document.getElementById('home-checklist-view').classList.toggle('hidden', seg !== 'checklist');
+            document.getElementById('home-tasks-view').classList.toggle('hidden', seg !== 'tasks');
+            
+            document.getElementById('seg-btn-checklist').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${seg === 'checklist' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
+            document.getElementById('seg-btn-tasks').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${seg === 'tasks' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
+        }
+
+        // 시간별 날씨 탭 렌더링
+        function renderHourlyTabs() {
+            const container = document.getElementById('hourly-tabs');
+            container.innerHTML = hourlyWeather.map((hw, idx) => `
+                <button onclick="selectHour(${idx})" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center shrink-0 transition-all cursor-pointer ${selectedHourIndex === idx ? 'bg-indigo-600 text-white shadow-sm scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                    <span class="text-[10px] opacity-80">${hw.time}</span>
+                    <span class="text-sm font-bold my-0.5">${hw.temp}</span>
+                    <span class="text-[9px] weather-emoji ${hw.type === 'rain' ? 'weather-emoji-rain' : hw.type === 'sunny' ? 'weather-emoji-sun' : ''}">${hw.icon}</span>
+                </button>
+            `).join('');
+            document.getElementById('selected-hour-label').innerText = `${hourlyWeather[selectedHourIndex].time} 기준 상세`;
+        }
+
+        function selectHour(idx) {
+            selectedHourIndex = idx;
+            renderHourlyTabs();
+            renderWeatherCard();
+            updateSmartBriefing();
+        }
+
+        // 날씨 효과 그래픽 오버레이 동적 생성
+        function updateWeatherFxLayer(type) {
+            const layer = document.getElementById('weather-fx-layer');
+            layer.innerHTML = '';
+
+            if (type === 'rain') {
+                for (let i = 0; i < 9; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'rain-drop';
+                    drop.innerText = '💧';
+                    drop.style.left = `${8 + i * 11}%`;
+                    drop.style.animationDelay = `${(i * 0.17) % 0.9}s`;
+                    drop.style.fontSize = `${11 + (i % 3) * 3}px`;
+                    layer.appendChild(drop);
+                }
+            } else if (type === 'cloudy') {
+                const clouds = [
+                    { top: '8px', size: '26px', delay: '-0.5s' },
+                    { top: '32px', size: '36px', delay: '-2.8s' },
+                    { top: '16px', size: '24px', delay: '-4.2s' },
+                    { top: '48px', size: '32px', delay: '-5.6s' },
+                    { top: '24px', size: '28px', delay: '-1.8s' }
+                ];
+                clouds.forEach(c => {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud-item';
+                    cloud.innerText = '☁️';
+                    cloud.style.top = c.top;
+                    cloud.style.fontSize = c.size;
+                    cloud.style.animationDelay = c.delay;
+                    layer.appendChild(cloud);
+                });
+            } else if (type === 'sunny') {
+                const sunBg = document.createElement('div');
+                sunBg.className = 'sunny-sun-bg';
+                layer.appendChild(sunBg);
+            } else if (type === 'windy') {
+                const lines = [
+                    { top: '20%', width: '90px', delay: '0s' },
+                    { top: '45%', width: '130px', delay: '0.8s' },
+                    { top: '70%', width: '100px', delay: '1.5s' }
+                ];
+                lines.forEach(l => {
+                    const line = document.createElement('div');
+                    line.className = 'wind-line-strong';
+                    line.style.top = l.top;
+                    line.style.width = l.width;
+                    line.style.animationDelay = l.delay;
+                    layer.appendChild(line);
+                });
+
+                const leaf = document.createElement('div');
+                leaf.className = 'wind-leaf';
+                leaf.innerText = '🍃';
+                leaf.style.top = '35%';
+                leaf.style.animationDelay = '0.3s';
+                layer.appendChild(leaf);
+            } else if (type === 'snow') {
+                for (let i = 0; i < 10; i++) {
+                    const flake = document.createElement('div');
+                    flake.className = 'snow-flake';
+                    const sz = 6 + (i % 4) * 3;
+                    flake.style.width = `${sz}px`;
+                    flake.style.height = `${sz}px`;
+                    flake.style.left = `${6 + i * 9.5}%`;
+                    flake.style.animationDelay = `${(i * 0.35) % 2.5}s`;
+                    layer.appendChild(flake);
+                }
+            }
+        }
+
+        // 날씨 카드 렌더링
+        function renderWeatherCard() {
+            const hw = hourlyWeather[selectedHourIndex];
+            document.getElementById('weather-temp').innerText = hw.temp;
+            document.getElementById('weather-desc').innerText = hw.desc;
+            const weatherIcon = document.getElementById('weather-icon-box');
+            weatherIcon.innerText = hw.icon;
+            weatherIcon.className = 'bg-white/90 p-3 rounded-2xl shadow-xs text-3xl weather-emoji ' +
+                (hw.type === 'rain' ? 'weather-emoji-rain' : hw.type === 'sunny' ? 'weather-emoji-sun' : '');
+            document.getElementById('val-rain').innerText = hw.rain;
+            document.getElementById('val-wind').innerText = hw.wind;
+            document.getElementById('val-uv').innerText = hw.uv;
+            document.getElementById('val-dust').innerText = hw.dust;
+            document.getElementById('weather-badge').innerText = hw.type === 'rain' ? '비 내림 (우산 필요)' : hw.type === 'snow' ? '눈 소식 (방한 대비)' : hw.type === 'windy' ? '강풍 주의' : hw.type === 'cloudy' ? '구름 많음' : '맑고 쾌적';
+
+            const card = document.getElementById('weather-card-container');
+            card.classList.remove('weather-rain', 'weather-snow', 'weather-sunny', 'weather-cloudy', 'weather-windy');
+            card.classList.add('weather-' + (hw.type === 'snow' ? 'snow' : hw.type === 'sunny' ? 'sunny' : hw.type === 'rain' ? 'rain' : hw.type === 'windy' ? 'windy' : 'cloudy'));
+
+            updateWeatherFxLayer(hw.type);
+        }
+
+        // 스마트 브리핑
+        function updateSmartBriefing() {
+            const hour = new Date().getHours();
+            const isNight = hour >= 18 || hour <= 6;
+            let msg = "오늘 하루도 쾌적하고 활기찬 일상을 보내세요! ✨";
+
+            if (isNight || hourlyWeather[selectedHourIndex].type === 'rain' || hourlyWeather[7].type === 'rain') {
+                msg = "비/눈 소식이 있거나 저녁 시간대입니다. 우산을 꼭 챙기세요! ☔";
+            } else if (hourlyWeather[selectedHourIndex].type === 'snow') {
+                msg = "눈길 조심하시고 따뜻한 옷차림을 준비하세요! ❄️";
+            }
+            document.getElementById('smart-briefing-text').innerText = msg;
+        }
+
+        // 준비물 추가
+        function handleAddSupply(e) {
+            e.preventDefault();
+            const textInput = document.getElementById('sup-input-text');
+            const dateInput = document.getElementById('sup-input-date');
+            const essentialInput = document.getElementById('sup-input-essential');
+
+            if (!textInput.value.trim()) return;
+
+            const newItem = {
+                id: Date.now(),
+                text: getAutoEmojiText(textInput.value.trim()),
+                isEssential: essentialInput.checked,
+                date: dateInput.value
             };
-            reader.readAsText(file);
+
+            suppliesList.push(newItem);
+            textInput.value = '';
+            essentialInput.checked = false;
+            renderSupplies();
+            switchTab('home');
         }
 
-        // Fetch Weather Placeholder
-        function fetchWeather() {
-            const temps = ['18°C', '20°C', '22°C', '23°C'];
-            const descs = ['맑음', '구름 조금', '쾌청함'];
-            const randomTemp = temps[Math.floor(Math.random() * temps.length)];
-            const randomDesc = descs[Math.floor(Math.random() * descs.length)];
-
-            document.getElementById('weather-temp').textContent = randomTemp;
-            document.getElementById('weather-desc').textContent = randomDesc;
+        // 준비물 삭제
+        function deleteSupply(id) {
+            suppliesList = suppliesList.filter(s => s.id !== id);
+            renderSupplies();
         }
 
-        // Helper Function
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        // 준비물 렌더링
+        function renderSupplies() {
+            // 홈 화면용 준비물 (필수고정 OR 오늘 날짜 항목)
+            const homeContainer = document.getElementById('home-supplies-container');
+            const todaySupplies = suppliesList.filter(s => s.isEssential || s.date === selectedDate);
+
+            if (todaySupplies.length === 0) {
+                homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">오늘의 등록된 준비물이 없습니다.</p>`;
+            } else {
+                homeContainer.innerHTML = todaySupplies.map(s => `
+                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            ${s.isEssential ? '<span class="text-xs text-amber-500 font-bold">⭐ [필수]</span>' : '<span class="text-xs text-indigo-500 font-bold">📌 [오늘]</span>'}
+                            <span class="text-xs font-semibold text-slate-800">${s.text}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-medium">${s.date}</span>
+                    </div>
+                `).join('');
+            }
+
+            // 준비물 탭 전체 목록
+            const allContainer = document.getElementById('all-supplies-list');
+            if (suppliesList.length === 0) {
+                allContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">등록된 준비물이 없습니다.</p>`;
+            } else {
+                allContainer.innerHTML = suppliesList.map(s => `
+                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                ${s.isEssential ? '<span class="text-xs text-amber-500">⭐</span>' : ''}
+                                <span class="text-xs font-bold text-slate-800">${s.text}</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400">${s.isEssential ? '매일 필수 포함' : `${s.date} 지정`}</span>
+                        </div>
+                        <button onclick="deleteSupply(${s.id})" class="text-xs text-rose-400 hover:text-rose-600 p-1.5 cursor-pointer">
+                            ✕
+                        </button>
+                    </div>
+                `).join('');
+            }
         }
 
-        // Enter Key Handlers
-        document.getElementById('supply-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addSupply(); });
-        document.getElementById('todo-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
+        // 캘린더 렌더링
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            document.getElementById('cal-title').innerText = `${calYear}년 ${calMonth + 1}월`;
 
-        // Initialize App
-        window.addEventListener('DOMContentLoaded', loadData);
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const lastDate = new Date(calYear, calMonth + 1, 0).getDate();
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div></div>`;
+            }
+
+            for (let d = 1; d <= lastDate; d++) {
+                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isSelected = dateStr === selectedDate;
+                const hasTask = userChecklists[dateStr] && userChecklists[dateStr].length > 0;
+
+                html += `
+                    <button onclick="selectDate('${dateStr}')" class="py-2 rounded-xl text-xs flex flex-col items-center justify-center transition-all cursor-pointer relative ${isSelected ? 'bg-indigo-600 text-white font-bold shadow-sm scale-105' : 'hover:bg-slate-100 text-slate-700'}">
+                        <span>${d}</span>
+                        ${hasTask ? `<span class="w-1 h-1 ${isSelected ? 'bg-white' : 'bg-indigo-500'} rounded-full mt-0.5"></span>` : ''}
+                    </button>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        function changeMonth(delta) {
+            calMonth += delta;
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            renderCalendar();
+        }
+
+        function selectDate(dateStr) {
+            selectedDate = dateStr;
+            const [y, m, d] = dateStr.split('-');
+            document.getElementById('home-date-display').innerText = `${parseInt(m)}월 ${parseInt(d)}일`;
+            document.getElementById('selected-date-todo-title').innerText = `📌 ${parseInt(m)}월 ${parseInt(d)}일 일정 관리`;
+            renderCalendar();
+            renderSupplies();
+            renderTasks();
+        }
+
+        // 일정 추가
+        function handleAddTask(e) {
+            e.preventDefault();
+            const textInput = document.getElementById('task-input-text');
+            const timeInput = document.getElementById('task-input-time');
+
+            if (!textInput.value.trim()) return;
+
+            if (!userChecklists[selectedDate]) {
+                userChecklists[selectedDate] = [];
+            }
+
+            userChecklists[selectedDate].push({
+                id: Date.now(),
+                text: textInput.value.trim(),
+                time: timeInput.value || '12:00',
+                completed: false
+            });
+
+            textInput.value = '';
+            renderTasks();
+            renderCalendar();
+        }
+
+        // 일정 완료 토글
+        function toggleTask(id) {
+            if (userChecklists[selectedDate]) {
+                const task = userChecklists[selectedDate].find(t => t.id === id);
+                if (task) task.completed = !task.completed;
+            }
+            renderTasks();
+        }
+
+        // 일정 삭제
+        function deleteTask(id) {
+            if (userChecklists[selectedDate]) {
+                userChecklists[selectedDate] = userChecklists[selectedDate].filter(t => t.id !== id);
+            }
+            renderTasks();
+            renderCalendar();
+        }
+
+        // 일정 렌더링
+        function renderTasks() {
+            const homeContainer = document.getElementById('home-tasks-container');
+            const todoContainer = document.getElementById('todo-list-container');
+            const tasks = userChecklists[selectedDate] || [];
+
+            // 홈 화면용 일정 리스트
+            if (tasks.length === 0) {
+                homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">등록된 일정이 없습니다.</p>`;
+            } else {
+                homeContainer.innerHTML = tasks.map(t => `
+                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg">${t.time}</span>
+                            <span class="text-xs font-semibold ${t.completed ? 'line-through text-slate-400' : 'text-slate-800'}">${t.text}</span>
+                        </div>
+                        <span class="text-xs">${t.completed ? '✅' : '⏳'}</span>
+                    </div>
+                `).join('');
+            }
+
+            // 할 일 탭 리스트
+            if (tasks.length === 0) {
+                todoContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">이 날짜에 등록된 일정이 없습니다.</p>`;
+            } else {
+                todoContainer.innerHTML = tasks.map(t => `
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
+                        <div class="flex items-center gap-2.5 cursor-pointer" onclick="toggleTask(${t.id})">
+                            <input type="checkbox" ${t.completed ? 'checked' : ''} class="w-4 h-4 text-indigo-600 rounded">
+                            <div>
+                                <p class="text-xs font-bold ${t.completed ? 'line-through text-slate-400' : 'text-slate-800'}">${t.text}</p>
+                                <p class="text-[10px] text-slate-400">${t.time}</p>
+                            </div>
+                        </div>
+                        <button onclick="deleteTask(${t.id})" class="text-xs text-rose-400 hover:text-rose-600 p-1 cursor-pointer">✕</button>
+                    </div>
+                `).join('');
+            }
+        }
     </script>
 </body>
 </html>
