@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HHH Assistant 앱 (공유 버전)</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     
     <!-- Firebase SDK (v10) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // 🔥 Firebase 설정
+        // 🔥 Firebase 콘솔 설정값
         const firebaseConfig = {
             apiKey: "AIzaSyDsXNCJelzNHqkj14yCQJoefqosVI3qc8g",
             authDomain: "hhh-assistant-a75d5.firebaseapp.com",
@@ -26,7 +26,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 전역 바인딩
+        // 전역으로 노출하여 기존 함수들이 사용하도록 설정
         window.db = db;
         window.dbRef = ref;
         window.dbSet = set;
@@ -34,10 +34,8 @@
         window.dbGet = get;
         window.dbChild = child;
 
-        // Firebase 연동 초기화
-        if (typeof window.initFirebaseSync === 'function') {
-            window.initFirebaseSync();
-        }
+        // 파이어베이스 연결 후 초기 데이터 동기화 시작 트리거
+        window.initFirebaseSync();
     </script>
 
     <style>
@@ -56,7 +54,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .spinning { animation: spinFast 0.8s linear infinite; display: inline-block; }
+        .spinning { animation: spinFast 0.8s linear infinite; }
 
         @keyframes bounceSlow {
             0%, 100% { transform: translateY(0); }
@@ -78,11 +76,32 @@
 </head>
 <body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
 
+    <!-- 🔒 비밀번호 잠금화면 모달 -->
+    <div id="auth-lock-screen" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100 text-center space-y-4">
+            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner">
+                🔒
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-800">접근 권한 필요</h3>
+                <p class="text-xs text-slate-500 mt-1">HHH Assistant 앱을 이용하려면 비밀번호를 입력해 주세요.</p>
+            </div>
+            <form onsubmit="handleCheckPassword(event)" class="space-y-3 pt-2">
+                <input type="password" id="app-password-input" placeholder="비밀번호 입력" required autofocus
+                    class="w-full text-center px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <p id="password-error-msg" class="text-xs text-rose-500 font-bold hidden">⚠️ 비밀번호가 올바르지 않습니다.</p>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700 transition duration-150 cursor-pointer">
+                    접속하기 🔑
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- 모바일 앱 프레임 -->
     <div class="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl flex flex-col h-screen sm:h-[880px] overflow-hidden relative">
         
         <!-- 상단 헤더 -->
-        <div class="px-5 py-3 bg-white flex justify-between items-center border-b border-slate-100 shrink-0 z-10">
+        <div class="px-5 py-3 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
             <div class="flex items-center gap-2">
                 <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-md">H</div>
                 <div class="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -100,22 +119,26 @@
             
             <!-- 1. HOME 탭 -->
             <div id="tab-home" class="p-3.5 space-y-3">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-1.5 font-bold text-slate-800 text-xs">
-                        📅 <span id="home-date-display">--월 --일 (-) - 오늘</span>
+                <div class="flex justify-between items-center gap-1">
+                    <div class="flex items-center gap-1 font-bold text-slate-800 text-[11px] shrink-0">
+                        📅 <span id="home-date-display">--월 --일 (-)</span>
                     </div>
-                    <div class="flex items-center gap-1.5 text-[11px] bg-slate-100 px-2.5 py-1 rounded-full text-slate-600 font-medium max-w-[180px] truncate">
-                        📍 <span id="location-label">위치 탐색 중...</span>
+                    <!-- ❤️ 디데이 바 -->
+                    <div class="text-[11px] font-bold text-rose-500 bg-rose-50 border border-rose-100 px-2.5 py-0.5 rounded-full flex items-center gap-0.5 shrink-0 shadow-2xs">
+                        <span id="love-days-display">사랑한지 --일째</span> ❤️
+                    </div>
+                    <div class="flex items-center gap-1 text-[10px] bg-slate-100 px-2 py-0.5 rounded-full text-slate-600 font-medium shrink-0 truncate max-w-[110px]">
+                        📍 <span id="location-label" class="truncate">위치 탐색 중...</span>
                     </div>
                 </div>
 
-                <!-- 날씨 특이점 알림 팝업 배너 -->
+                <!-- 날씨 특이점 알림 팝업 배너 (조건부 노출) -->
                 <div id="weather-alert-banner" class="hidden alert-slide bg-gradient-to-r from-amber-500 to-rose-600 text-white p-3 rounded-2xl shadow-md flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2 text-xs font-bold flex-1">
-                        <span class="text-lg shrink-0" id="alert-icon">⚠️</span>
-                        <span id="weather-alert-text" class="leading-tight">날씨 특이점 안내 메시지</span>
+                    <div class="flex items-center gap-2 text-xs font-bold">
+                        <span class="text-lg" id="alert-icon">⚠️</span>
+                        <span id="weather-alert-text">날씨 특이점 안내 팝업 메시지</span>
                     </div>
-                    <button onclick="dismissWeatherAlert()" class="text-white/80 hover:text-white text-xs font-bold px-2 py-1 rounded bg-white/20 cursor-pointer shrink-0">확인</button>
+                    <button onclick="dismissWeatherAlert()" class="text-white/80 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded bg-white/20 cursor-pointer shrink-0">확인</button>
                 </div>
 
                 <!-- 날씨 카드 -->
@@ -131,9 +154,9 @@
                         <div>
                             <div class="flex items-baseline gap-1.5">
                                 <span id="weather-temp" class="text-3xl font-extrabold tracking-tight">--°</span>
-                                <span id="weather-feels" class="text-[10px] bg-white/80 px-1.5 py-0.5 rounded font-medium text-slate-600">체감 --°</span>
+                                <span id="weather-feels" class="text-[10px] bg-white/80 px-1.5 py-0.5 rounded font-medium text-slate-600">실시간 기온</span>
                             </div>
-                            <p id="weather-subtext" class="text-[10px] text-slate-600 mt-0.5 font-medium">Open-Meteo 실시간 기상 API 연동</p>
+                            <p id="weather-subtext" class="text-[10px] text-slate-600 mt-0.5 font-medium">실시간 기상청 API 연동</p>
                         </div>
                         <div id="weather-icon-box" class="bg-white/90 p-2 rounded-xl shadow-xs text-2xl weather-emoji">
                             🌍
@@ -143,7 +166,7 @@
                     <div class="grid grid-cols-4 gap-1.5 mt-1 relative z-10">
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
                             <span class="text-[9px] text-slate-400">습도</span>
-                            <span id="val-humidity" class="text-[11px] font-bold text-blue-600 mt-0.5">--%</span>
+                            <span id="val-rain" class="text-[11px] font-bold text-blue-600 mt-0.5">--%</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
                             <span class="text-[9px] text-slate-400">바람</span>
@@ -151,7 +174,7 @@
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
                             <span class="text-[9px] text-slate-400">강수량</span>
-                            <span id="val-rain" class="text-[11px] font-bold text-amber-600 mt-0.5">--mm</span>
+                            <span id="val-uv" class="text-[11px] font-bold text-amber-600 mt-0.5">--mm</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
                             <span class="text-[9px] text-slate-400">자외선지수</span>
@@ -443,7 +466,7 @@
 
                 <!-- 뽑기 상자 영역 -->
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center space-y-4">
-                    <div id="gacha-box" onclick="tryGacha()" class="w-32 h-32 mx-auto bg-indigo-50 border-2 border-dashed border-indigo-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-100 transition-all shadow-inner group select-none">
+                    <div id="gacha-box" onclick="tryGacha()" class="w-32 h-32 mx-auto bg-indigo-50 border-2 border-dashed border-indigo-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-100 transition-all shadow-inner group">
                         <span class="text-4xl group-hover:scale-110 transition-transform">💌</span>
                         <span id="gacha-btn-label" class="text-xs font-bold text-indigo-700 mt-2">쪽지 뽑기 오픈!</span>
                     </div>
@@ -596,6 +619,8 @@
 
     <!-- JavaScript 로직 -->
     <script>
+        const SECRET_PASSCODE = "12160819";
+
         let currentTab = 'home';
         let homeSegment = 'checklist';
         
@@ -604,11 +629,18 @@
         let calMonth = todayObj.getMonth();
         let selectedDate = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
 
-        // 로컬 데이터 초기 상태
+        // 로컬 데이터 변수
         let userProfile = { birthdate: '2000-01-01', zodiac: '양자리', birthtime: '12:00' };
         let gachaState = { lastDrawnTimestamp: 0, prize: null, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 } };
         let suppliesList = [];
         let userChecklists = {};
+
+        const publicHolidays2026 = {
+            '2026-01-01': '신정', '2026-03-01': '삼일절', '2026-05-05': '어린이날',
+            '2026-05-24': '부처님오신날', '2026-06-06': '현충일', '2026-08-15': '광복절',
+            '2026-09-24': '추석', '2026-09-25': '추석', '2026-09-26': '추석',
+            '2026-10-03': '개천절', '2026-10-05': '대체공휴일', '2026-10-09': '한글날', '2026-12-25': '크리스마스'
+        };
 
         const quotesPool = [
             "\"피할 수 없으면 즐겨라.\" - 로버트 엘리엇",
@@ -628,11 +660,54 @@
 
         let currentQuiz = {};
 
+        // ❤️ 디데이 계산 함수 (2025년 8월 8일 = 1일째)
+        function updateLoveDays() {
+            const startDate = new Date(2025, 7, 8); // 8월은 인덱스 7
+            const now = new Date();
+            
+            // 날짜 간격 계산 (시/분/초 차이 제거)
+            const utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            const utcToday = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            const diffDays = Math.floor((utcToday - utcStart) / (1000 * 60 * 60 * 24)) + 1;
+            
+            const daysEl = document.getElementById('love-days-display');
+            if (daysEl) {
+                daysEl.innerText = `사랑한지 ${diffDays}일째`;
+            }
+        }
+
+        // 🔒 비밀번호 확인 함수
+        function handleCheckPassword(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('app-password-input').value;
+            const errorMsg = document.getElementById('password-error-msg');
+
+            if (inputVal === SECRET_PASSCODE) {
+                sessionStorage.setItem('hhh_authenticated', 'true');
+                document.getElementById('auth-lock-screen').classList.add('hidden');
+                initApp();
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('app-password-input').value = '';
+                document.getElementById('app-password-input').focus();
+            }
+        }
+
+        function checkAuthentication() {
+            const isAuthenticated = sessionStorage.getItem('hhh_authenticated');
+            if (isAuthenticated === 'true') {
+                document.getElementById('auth-lock-screen').classList.add('hidden');
+                initApp();
+            } else {
+                document.getElementById('auth-lock-screen').classList.remove('hidden');
+            }
+        }
+
         // 🔥 Firebase 실시간 연동 초기화 함수
         window.initFirebaseSync = function() {
             if (!window.db) return;
 
-            // 1. 준비물 실시간 동기화
             const supRef = window.dbRef(window.db, 'hhhApp/supplies');
             window.dbOnValue(supRef, (snapshot) => {
                 const data = snapshot.val();
@@ -640,7 +715,6 @@
                 renderSupplies();
             });
 
-            // 2. 일정(할 일) 실시간 동기화
             const taskRef = window.dbRef(window.db, 'hhhApp/tasks');
             window.dbOnValue(taskRef, (snapshot) => {
                 const data = snapshot.val();
@@ -649,17 +723,13 @@
                 renderCalendar();
             });
 
-            // 3. 뽑기 상태 실시간 동기화
             const gachaRef = window.dbRef(window.db, 'hhhApp/gacha');
             window.dbOnValue(gachaRef, (snapshot) => {
                 const data = snapshot.val();
-                if (data) {
-                    gachaState = data;
-                }
+                if (data) gachaState = data;
                 checkGachaResetStatus();
             });
 
-            // 4. 프로필 정보 동기화
             const profileRef = window.dbRef(window.db, 'hhhApp/profile');
             window.dbOnValue(profileRef, (snapshot) => {
                 const data = snapshot.val();
@@ -674,9 +744,7 @@
         function saveToFirebase(path, data) {
             if (!window.db) return;
             const dbRefTarget = window.dbRef(window.db, `hhhApp/${path}`);
-            window.dbSet(dbRefTarget, data).catch((err) => {
-                console.error("데이터 저장 실패:", err);
-            });
+            window.dbSet(dbRefTarget, data).catch((err) => console.error("데이터 저장 실패:", err));
         }
 
         function saveData() {
@@ -687,151 +755,21 @@
         }
 
         window.onload = function() {
+            checkAuthentication();
+        };
+
+        function initApp() {
             const mName = todayObj.toLocaleString('ko-KR', { month: 'long' });
             const dNum = todayObj.getDate();
             const wName = todayObj.toLocaleString('ko-KR', { weekday: 'short' });
-            document.getElementById('home-date-display').innerText = `${mName} ${dNum}일 (${wName}) - 오늘`;
+            document.getElementById('home-date-display').innerText = `${mName} ${dNum}일 (${wName})`;
             document.getElementById('sup-input-date').value = selectedDate;
 
+            updateLoveDays(); // ❤️ 사랑한지 디데이 업데이트
             initRandomQuote();
             initRandomQuiz();
             refreshLocationAndWeather();
             renderFortune();
-        };
-
-        function dismissWeatherAlert() {
-            document.getElementById('weather-alert-banner').classList.add('hidden');
-        }
-
-        // 📍 위치 및 실시간 날씨 연동 (GPS 우선 및 실패시 화성시 영천동 대체)
-        function refreshLocationAndWeather() {
-            const icon = document.getElementById('refresh-icon');
-            if (icon) icon.classList.add('spinning');
-
-            document.getElementById('location-label').innerText = "위치 탐색 중...";
-
-            const defaultLat = 37.201;
-            const defaultLon = 127.106;
-            const defaultLoc = "화성시 영천동";
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        
-                        try {
-                            // Reverse Geocoding via Nominatim
-                            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`, {
-                                headers: { 'Accept-Language': 'ko' }
-                            });
-                            const geoData = await geoRes.json();
-                            let locName = defaultLoc;
-                            
-                            if (geoData && geoData.address) {
-                                const addr = geoData.address;
-                                const city = addr.city || addr.county || addr.district || addr.province || '';
-                                const sub = addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.quarter || '';
-                                locName = `${city} ${sub}`.trim() || defaultLoc;
-                            }
-                            await fetchWeatherData(lat, lon, locName);
-                        } catch (e) {
-                            console.warn("역지오코딩 실패, 기본 좌표 사용", e);
-                            await fetchWeatherData(lat, lon, defaultLoc);
-                        } finally {
-                            if (icon) icon.classList.remove('spinning');
-                        }
-                    },
-                    (error) => {
-                        console.warn("GPS 수신 거부 또는 오류, 기본 위치 설정:", error.message);
-                        fetchWeatherData(defaultLat, defaultLon, defaultLoc);
-                        if (icon) icon.classList.remove('spinning');
-                    },
-                    { timeout: 8000, enableHighAccuracy: true }
-                );
-            } else {
-                fetchWeatherData(defaultLat, defaultLon, defaultLoc);
-                if (icon) icon.classList.remove('spinning');
-            }
-        }
-
-        // 🌤️ Open-Meteo API 호출 & 특이점 배너 연동
-        async function fetchWeatherData(lat, lon, fullLoc) {
-            document.getElementById('location-label').innerText = fullLoc;
-            try {
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,uv_index&timezone=auto`);
-                const weatherData = await weatherRes.json();
-                
-                if (weatherData && weatherData.current) {
-                    const cur = weatherData.current;
-                    const curWeather = getWeatherDetails(cur.weather_code);
-
-                    // 기상 카드 바인딩
-                    document.getElementById('weather-temp').innerText = `${Math.round(cur.temperature_2m)}°`;
-                    document.getElementById('weather-feels').innerText = `체감 ${Math.round(cur.apparent_temperature)}°`;
-                    document.getElementById('weather-desc').innerText = curWeather.desc;
-                    document.getElementById('weather-icon-box').innerText = curWeather.icon;
-                    document.getElementById('val-humidity').innerText = `${cur.relative_humidity_2m}%`;
-                    document.getElementById('val-wind').innerText = `${Math.round(cur.wind_speed_10m)}km/h`;
-                    document.getElementById('val-rain').innerText = `${cur.precipitation}mm`;
-
-                    // 카드 테마 변경
-                    const cardBox = document.getElementById('weather-card-container');
-                    cardBox.className = `weather-scene weather-${curWeather.type} p-3.5 rounded-2xl border shadow-sm relative transition-all duration-700`;
-
-                    // UV Index 예측 수치 바인딩
-                    let curUv = 0;
-                    if (weatherData.hourly && weatherData.hourly.uv_index) {
-                        const currentHour = new Date().getHours();
-                        curUv = weatherData.hourly.uv_index[currentHour] || 0;
-                        document.getElementById('val-uv-index').innerText = curUv.toFixed(1);
-                    } else {
-                        document.getElementById('val-uv-index').innerText = "보통";
-                    }
-
-                    document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 ${Math.round(cur.temperature_2m)}°C (체감 ${Math.round(cur.apparent_temperature)}°C), ${curWeather.desc} 날씨입니다. ✨`;
-
-                    // ⚠️ 향후 3시간 내 날씨 특이점 체크
-                    checkWeatherAlerts(weatherData);
-                }
-            } catch (err) {
-                console.error("날씨 불러오기 실패:", err);
-                document.getElementById('weather-desc').innerText = "날씨 정보 연결 불가";
-            }
-        }
-
-        // 3시간 이내 강수/강풍/자외선 특이점 알림
-        function checkWeatherAlerts(data) {
-            const alertBanner = document.getElementById('weather-alert-banner');
-            const alertText = document.getElementById('weather-alert-text');
-            const alertIcon = document.getElementById('alert-icon');
-
-            if (!data.hourly) return;
-
-            const currentHour = new Date().getHours();
-            const next3HoursRain = data.hourly.precipitation.slice(currentHour, currentHour + 3);
-            const next3HoursWind = data.hourly.wind_speed_10m.slice(currentHour, currentHour + 3);
-            const next3HoursUv = data.hourly.uv_index ? data.hourly.uv_index.slice(currentHour, currentHour + 3) : [];
-
-            const totalRain = next3HoursRain.reduce((a, b) => a + b, 0);
-            const maxWind = Math.max(...next3HoursWind, 0);
-            const maxUv = Math.max(...next3HoursUv, 0);
-
-            if (totalRain > 0.5) {
-                alertIcon.innerText = "☔";
-                alertText.innerText = "3시간 내에 비 예보가 있습니다! 우산을 챙겨주세요.";
-                alertBanner.classList.remove('hidden');
-            } else if (maxWind >= 25) {
-                alertIcon.innerText = "💨";
-                alertText.innerText = "바람이 매우 강하게 불고 있습니다. 외출 시 주의하세요!";
-                alertBanner.classList.remove('hidden');
-            } else if (maxUv >= 6) {
-                alertIcon.innerText = "☀️";
-                alertText.innerText = "자외선 지수가 높습니다. 자외선 차단제를 바르세요!";
-                alertBanner.classList.remove('hidden');
-            } else {
-                alertBanner.classList.add('hidden');
-            }
         }
 
         function openApp(appScheme, webUrl) {
@@ -874,7 +812,7 @@
             userProfile.birthtime = document.getElementById('profile-birthtime').value;
             saveData();
             renderFortune();
-            alert("프로필이 저장되었습니다! (두 사용자에게 공유됨) 🔮");
+            alert("프로필이 저장되었습니다! (공유됨) 🔮");
             switchTab('fortune');
         }
 
@@ -945,23 +883,17 @@
         }
 
         function renderFortune() {
-            const dateStr = `${todayObj.getFullYear()}${todayObj.getMonth() + 1}${todayObj.getDate()}`;
             document.getElementById('fortune-user-info').innerText = `${userProfile.zodiac} · 생일 ${userProfile.birthdate}`;
-            
+            const dateStr = `${todayObj.getFullYear()}${todayObj.getMonth() + 1}${todayObj.getDate()}`;
             const seed = parseInt(dateStr) + parseInt(userProfile.birthdate.replace(/-/g, '')) + userProfile.zodiac.length;
             
             const generals = ["오늘은 모든 일에 활력이 넘치고 주변의 도움을 받을 수 있는 형통한 하루입니다.", "작은 오해가 생길 수 있으나 진심어린 소통으로 큰 성과를 거두는 날입니다.", "뜻밖의 귀인이 나타나 당신의 고민을 시원하게 해결해 주는 행운의 하루입니다."];
             const wealths = ["안정적인 재물 흐름, 소소한 득템이나 뜻밖의 수입이 기대됩니다.", "불필요한 지출을 주의하세요. 충동구매만 막는다면 평온합니다."];
             const loves = ["주변 사람들과의 관계가 깊어지고 따뜻한 공감을 나누는 하루입니다.", "사소한 말실수를 조심하세요."];
-            const colors = ["파스텔 블루", "로즈 핑크", "민트 그린", "라벤더", "크림 옐로우"];
-            const dirs = ["동쪽", "서쪽", "남쪽", "북쪽", "남동쪽"];
 
             document.getElementById('fortune-general').innerText = generals[seed % generals.length];
             document.getElementById('fortune-wealth').innerText = wealths[seed % wealths.length];
             document.getElementById('fortune-love').innerText = loves[seed % loves.length];
-            document.getElementById('luck-color').innerText = colors[seed % colors.length];
-            document.getElementById('luck-num').innerText = (seed % 9) + 1;
-            document.getElementById('luck-dir').innerText = dirs[seed % dirs.length];
         }
 
         function initRandomQuote() {
@@ -970,21 +902,150 @@
 
         function initRandomQuiz() {
             currentQuiz = nonsenseQuizzes[Math.floor(Math.random() * nonsenseQuizzes.length)];
-            document.getElementById('quiz-question').innerText = `${currentQuiz.q}`;
+            document.getElementById('quiz-question').innerText = `${currentQuiz.q} (정답은 터치)`;
             document.getElementById('quiz-answer-text').innerText = currentQuiz.a;
         }
 
         function toggleQuizAnswer() {
-            const ansBox = document.getElementById('quiz-answer-box');
-            ansBox.classList.toggle('hidden');
+            document.getElementById('quiz-answer-box').classList.toggle('hidden');
         }
 
         function getWeatherDetails(code) {
             if (code === 0) return { desc: '맑음', icon: '☀️', type: 'sunny' };
             if ([1, 2].includes(code)) return { desc: '구름조금', icon: '⛅', type: 'sunny' };
             if (code === 3) return { desc: '구름많음', icon: '☁️', type: 'cloudy' };
-            if ([51, 61, 63, 65, 80].includes(code)) return { desc: '비', icon: '🌧️', type: 'rain' };
+            if ([45, 48].includes(code)) return { desc: '안개', icon: '🌫️', type: 'cloudy' };
+            if ([51, 53, 55, 56, 57].includes(code)) return { desc: '이슬비', icon: '🌦️', type: 'rain' };
+            if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { desc: '비', icon: '🌧️', type: 'rain' };
+            if ([71, 73, 75, 77, 85, 86].includes(code)) return { desc: '눈', icon: '❄️', type: 'cloudy' };
+            if ([95, 96, 99].includes(code)) return { desc: '천둥번개', icon: '⚡', type: 'rain' };
             return { desc: '흐림', icon: '☁️', type: 'cloudy' };
+        }
+
+        function refreshLocationAndWeather() {
+            const iconEl = document.getElementById('refresh-icon');
+            iconEl.classList.add('spinning');
+            document.getElementById('location-label').innerText = "위치 탐색 중...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        await fetchWeatherData(lat, lon);
+                        iconEl.classList.remove('spinning');
+                    },
+                    (error) => {
+                        fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
+                        iconEl.classList.remove('spinning');
+                    },
+                    { timeout: 10000, enableHighAccuracy: true }
+                );
+            } else {
+                fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
+                iconEl.classList.remove('spinning');
+            }
+        }
+
+        async function fetchWeatherData(lat, lon, fallbackName = null) {
+            let fullLoc = fallbackName;
+            
+            if (!fullLoc) {
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=ko`);
+                    const geoData = await geoRes.json();
+                    if (geoData && geoData.address) {
+                        const addr = geoData.address;
+                        const city = addr.city || addr.county || addr.state || '현재 위치';
+                        const district = addr.borough || addr.suburb || addr.town || addr.village || '';
+                        fullLoc = district ? `${city} ${district}` : city;
+                    } else {
+                        fullLoc = "현재 위치";
+                    }
+                } catch (e) {
+                    fullLoc = "현재 위치";
+                }
+            }
+
+            document.getElementById('location-label').innerText = fullLoc;
+
+            try {
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability,uv_index,wind_speed_10m&timezone=auto`);
+                const weatherData = await weatherRes.json();
+
+                if (weatherData && weatherData.current) {
+                    const cur = weatherData.current;
+                    const curWeather = getWeatherDetails(cur.weather_code);
+                    const currentHour = new Date().getHours();
+                    const curUvIndex = (weatherData.hourly && weatherData.hourly.uv_index) ? weatherData.hourly.uv_index[currentHour] : 3.0;
+                    
+                    document.getElementById('weather-temp').innerText = `${Math.round(cur.temperature_2m)}°`;
+                    document.getElementById('weather-feels').innerText = `체감 ${Math.round(cur.apparent_temperature || cur.temperature_2m)}°C`;
+                    document.getElementById('weather-desc').innerText = curWeather.desc;
+                    document.getElementById('weather-icon-box').innerText = curWeather.icon;
+                    document.getElementById('val-rain').innerText = `${cur.relative_humidity_2m}%`;
+                    document.getElementById('val-wind').innerText = `${Math.round(cur.wind_speed_10m)}km/h`;
+                    document.getElementById('val-uv').innerText = `${cur.precipitation || 0}mm`;
+                    document.getElementById('val-uv-index').innerText = `${curUvIndex !== undefined ? curUvIndex : '보통'} (UV)`;
+                    document.getElementById('weather-badge').innerText = `${curWeather.desc} (실시간 연동)`;
+                    document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 기상청 API 연동 완료`;
+                    document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 ${Math.round(cur.temperature_2m)}°C, 날씨는 ${curWeather.desc}입니다. 오늘도 활기찬 하루 보내세요! ✨`;
+
+                    const card = document.getElementById('weather-card-container');
+                    card.classList.remove('weather-rain', 'weather-sunny', 'weather-cloudy');
+                    card.classList.add(curWeather.type === 'sunny' ? 'weather-sunny' : (curWeather.type === 'rain' ? 'weather-rain' : 'weather-cloudy'));
+                }
+
+                if (weatherData && weatherData.hourly) {
+                    const hourly = weatherData.hourly;
+                    const nowIdx = new Date().getHours();
+                    let alertFound = false;
+
+                    for (let i = 1; i <= 3; i++) {
+                        const targetIdx = nowIdx + i;
+                        if (targetIdx < hourly.time.length) {
+                            const rainProb = hourly.precipitation_probability ? hourly.precipitation_probability[targetIdx] : 0;
+                            const windSpeed = hourly.wind_speed_10m ? hourly.wind_speed_10m[targetIdx] : 0;
+                            const uvVal = hourly.uv_index ? hourly.uv_index[targetIdx] : 0;
+                            const wCode = hourly.weather_code[targetIdx];
+
+                            if (rainProb >= 60 || [51,53,55,61,63,65,71,73,75,80,81,82].includes(wCode)) {
+                                showWeatherAlert(`☔ ${i}시간 후에 비(눈)가 올 예정이에요! 우산 챙기세요!`, "🌧️");
+                                alertFound = true;
+                                break;
+                            }
+                            if (windSpeed >= 35) {
+                                showWeatherAlert(`💨 ${i}시간 후에 강풍이 불 예정이에요! 시설물에 유의하세요!`, "🌬️");
+                                alertFound = true;
+                                break;
+                            }
+                            if (uvVal >= 8) {
+                                showWeatherAlert(`☀️ 자외선 지수가 매우 높아요(${uvVal})! 선크림을 바르세요!`, "🧴");
+                                alertFound = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!alertFound) {
+                        document.getElementById('weather-alert-banner').classList.add('hidden');
+                    }
+                }
+
+            } catch (err) {
+                console.error("날씨 데이터를 불러오지 못했습니다.", err);
+            }
+        }
+
+        function showWeatherAlert(msg, iconEmoji) {
+            const banner = document.getElementById('weather-alert-banner');
+            document.getElementById('weather-alert-text').innerText = msg;
+            document.getElementById('alert-icon').innerText = iconEmoji;
+            banner.classList.remove('hidden');
+        }
+
+        function dismissWeatherAlert() {
+            document.getElementById('weather-alert-banner').classList.add('hidden');
         }
 
         function switchTab(tab) {
