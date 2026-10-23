@@ -224,70 +224,73 @@
                 </div>
             </div>
 
-            <!-- 4. 심심해 탭 (리얼타임 플랫폼 탐색 전용 허브) -->
-            <div id="tab-bored" class="p-4 space-y-4 hidden">
-                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-5 rounded-3xl text-white shadow-md space-y-2">
-                    <h3 class="text-base font-bold flex items-center gap-2">
-                        🔥 리얼타임 트렌드 탐색 허브
-                    </h3>
-                    <p class="text-xs text-indigo-100 leading-relaxed">
-                        각 플랫폼의 공식 실시간 인기 및 급상승 피드로 곧바로 연결됩니다. 지금 가장 뜨거운 숏폼과 이슈를 확인하세요! 🚀
-                    </p>
-                </div>
-
-                <div class="space-y-3">
-                    <!-- 인스타그램 릴스 급상승 탐색 -->
-                    <a href="instagram://reels" onclick="openApp('instagram://reels', 'https://www.instagram.com/reels/')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl">📸</span>
-                            <div>
-                                <span class="text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md">Instagram</span>
-                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">인스타그램 릴스 실시간 인기 피드</h4>
-                                <p class="text-[10px] text-slate-400">앱 설치 시 앱으로 바로 실행됩니다</p>
-                            </div>
+            <!-- 4. 심심해 탭 -->
+            <div id="tab-bored" class="p-4 space-y-3 hidden">
+                <a href="instagram://reels" onclick="openApp('instagram://reels', 'https://www.instagram.com/reels/')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">📸</span>
+                        <div>
+                            <span class="text-[9px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md">Instagram</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">인스타그램 릴스</h4>
                         </div>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
-                    </a>
+                    </div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
+                </a>
 
-                    <!-- 틱톡 실시간 급상승 탐색 -->
-                    <a href="tiktok://explore" onclick="openApp('tiktok://explore', 'https://www.tiktok.com/explore')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl">🎵</span>
-                            <div>
-                                <span class="text-[10px] font-bold text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-md">TikTok</span>
-                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">틱톡 글로벌 급상승 탐색</h4>
-                                <p class="text-[10px] text-slate-400">실시간 유행 챌린지 및 영상</p>
-                            </div>
+                <a href="tiktok://explore" onclick="openApp('tiktok://explore', 'https://www.tiktok.com/explore')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🎵</span>
+                        <div>
+                            <span class="text-[9px] font-bold text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-md">TikTok</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">틱톡 (TikTok)</h4>
                         </div>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
-                    </a>
+                    </div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
+                </a>
 
-                    <!-- 유튜브 쇼츠 실시간 급상승 탐색 -->
-                    <a href="vnd.youtube://www.youtube.com/shorts" onclick="openApp('vnd.youtube://www.youtube.com/shorts', 'https://www.youtube.com/shorts')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl">▶️</span>
-                            <div>
-                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">YouTube Shorts</span>
-                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">유튜브 쇼츠 인기 급상승 클립</h4>
-                                <p class="text-[10px] text-slate-400">지금 가장 많이 보는 숏클립</p>
-                            </div>
+                <a href="vnd.youtube://www.youtube.com/shorts" onclick="openApp('vnd.youtube://www.youtube.com/shorts', 'https://www.youtube.com/shorts')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">▶️</span>
+                        <div>
+                            <span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">YouTube</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">유튜브 쇼츠</h4>
                         </div>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
-                    </a>
+                    </div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
+                </a>
 
-                    <!-- X(트위터) 실시간 트렌드 -->
-                    <a href="https://twitter.com/explore/tabs/trending" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl">💬</span>
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">X (Twitter)</span>
-                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">X 실시간 실검 트렌드 피드</h4>
-                                <p class="text-[10px] text-slate-400">지금 실시간으로 뜨는 이슈 키워드</p>
-                            </div>
+                <a href="https://section.blog.naver.com/HotTopic.naver" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🟢</span>
+                        <div>
+                            <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Naver</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">네이버 블로그 실시간 인기글</h4>
                         </div>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
-                    </a>
-                </div>
+                    </div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
+                </a>
+
+                <a href="nflx://www.netflix.com" onclick="openApp('nflx://www.netflix.com', 'https://www.netflix.com')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🎬</span>
+                        <div>
+                            <span class="text-[9px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">Netflix</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">넷플릭스 (Netflix) 앱</h4>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
+                </a>
+
+                <a href="https://twitter.com/explore/tabs/trending" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">💬</span>
+                        <div>
+                            <span class="text-[9px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">Twitter/X</span>
+                            <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">X (트위터) 실시간 트렌드</h4>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
+                </a>
             </div>
 
             <!-- 5. Setting 탭 -->
@@ -432,12 +435,12 @@
             { time: '23:00', temp: '16°', type: 'cloudy', desc: '구름많음', rain: '79%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
         ];
 
-        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v15')) || [];
-        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v15')) || {};
+        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v17')) || [];
+        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v17')) || {};
 
         function saveData() {
-            localStorage.setItem('hhh_supplies_v15', JSON.stringify(suppliesList));
-            localStorage.setItem('hhh_tasks_v15', JSON.stringify(userChecklists));
+            localStorage.setItem('hhh_supplies_v17', JSON.stringify(suppliesList));
+            localStorage.setItem('hhh_tasks_v17', JSON.stringify(userChecklists));
         }
 
         function openApp(appScheme, webUrl) {
@@ -529,12 +532,12 @@
                                 document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 GPS 날씨 연동`;
                                 document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 19°C로 쾌적합니다. 기분 좋은 하루 보내세요! ✨`;
                             }
-                        } catch (e) { setLocationFallback("화성시 영천동"); }
+                        } catch (e) { setLocationFallback("서울시 중구"); }
                     },
-                    (error) => { setLocationFallback("화성시 영천동"); },
+                    (error) => { setLocationFallback("서울시 중구"); },
                     { timeout: 10000 }
                 );
-            } else { setLocationFallback("화성시 영천동"); }
+            } else { setLocationFallback("서울시 중구"); }
         }
 
         function setLocationFallback(locName) {
