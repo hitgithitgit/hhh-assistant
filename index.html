@@ -14,7 +14,7 @@
 
         @keyframes weatherFloat {
             0%, 100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-6px) rotate(3deg); }
+            50% { transform: translateY(-4px) rotate(3deg); }
         }
         .weather-emoji { display: inline-block; transform-origin: center; animation: weatherFloat 2.2s ease-in-out infinite; }
 
@@ -29,24 +29,24 @@
     <div class="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl flex flex-col h-screen sm:h-[880px] overflow-hidden relative">
         
         <!-- 상단 헤더 -->
-        <div class="px-5 py-4 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
+        <div class="px-5 py-3 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">H</div>
-                <div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                    HHH Assistant <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.5</span>
+                <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-md">H</div>
+                <div class="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                    HHH Assistant <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.5</span>
                 </div>
             </div>
         </div>
 
-        <!-- 3시간 간격 24시간 날씨 탭 -->
-        <div id="hourly-weather-panel" class="bg-slate-50 border-b border-slate-200 px-3 py-2.5 shrink-0">
-            <div class="flex justify-between items-center mb-1.5 px-1">
-                <span id="hourly-panel-title" class="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+        <!-- 3시간 간격 24시간 날씨 탭 (세로 높이 축소) -->
+        <div id="hourly-weather-panel" class="bg-slate-50 border-b border-slate-200 px-3 py-1.5 shrink-0">
+            <div class="flex justify-between items-center mb-1 px-1">
+                <span id="hourly-panel-title" class="text-[10px] font-bold text-slate-600 flex items-center gap-1">
                     ⏰ 24시간 시간별 날씨 (현재 위치 확인 중...)
                 </span>
-                <span id="selected-hour-label" class="text-[10px] text-indigo-600 font-bold">18:00 기준 상세</span>
+                <span id="selected-hour-label" class="text-[9px] text-indigo-600 font-bold">18:00 기준 상세</span>
             </div>
-            <div id="hourly-tabs" class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            <div id="hourly-tabs" class="flex gap-1 overflow-x-auto pb-0.5 no-scrollbar">
                 <!-- 동적 생성 -->
             </div>
         </div>
@@ -55,90 +55,106 @@
         <div id="main-scroll-area" class="flex-1 overflow-y-auto pb-24">
             
             <!-- 1. HOME 탭 -->
-            <div id="tab-home" class="p-4 space-y-4">
+            <div id="tab-home" class="p-3.5 space-y-3">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
+                    <div class="flex items-center gap-1.5 font-bold text-slate-800 text-xs">
                         📅 <span id="home-date-display">10월 23일 (금) - 오늘</span>
                     </div>
-                    <div class="flex items-center gap-1.5 text-xs bg-slate-100 px-3 py-1.5 rounded-full text-slate-600 font-medium">
+                    <div class="flex items-center gap-1.5 text-[11px] bg-slate-100 px-2.5 py-1 rounded-full text-slate-600 font-medium">
                         📍 <span id="location-label">위치 탐색 중...</span>
                     </div>
                 </div>
 
-                <!-- 날씨 카드 -->
-                <div id="weather-card-container" class="weather-scene weather-cloudy p-5 rounded-3xl border shadow-sm relative transition-all duration-700">
-                    <div class="flex justify-between items-center mb-3 relative z-10">
-                        <span id="weather-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 shadow-xs">
+                <!-- 날씨 카드 (콤팩트하게 세로 축소) -->
+                <div id="weather-card-container" class="weather-scene weather-cloudy p-3.5 rounded-2xl border shadow-sm relative transition-all duration-700">
+                    <div class="flex justify-between items-center mb-2 relative z-10">
+                        <span id="weather-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 shadow-xs">
                             구름많음 (쾌적)
                         </span>
-                        <span id="weather-desc" class="text-sm font-bold text-slate-700">구름 많음</span>
+                        <span id="weather-desc" class="text-xs font-bold text-slate-700">구름 많음</span>
                     </div>
 
-                    <div class="flex justify-between items-center mb-4 relative z-10">
+                    <div class="flex justify-between items-center mb-2.5 relative z-10">
                         <div>
-                            <div class="flex items-baseline gap-2">
-                                <span id="weather-temp" class="text-4xl font-extrabold tracking-tight">19°</span>
-                                <span id="weather-feels" class="text-xs bg-white/80 px-2 py-1 rounded-md font-medium text-slate-600">체감 19°C</span>
+                            <div class="flex items-baseline gap-1.5">
+                                <span id="weather-temp" class="text-3xl font-extrabold tracking-tight">19°</span>
+                                <span id="weather-feels" class="text-[10px] bg-white/80 px-1.5 py-0.5 rounded font-medium text-slate-600">체감 19°C</span>
                             </div>
-                            <p id="weather-subtext" class="text-xs text-slate-600 mt-1 font-medium">현재 GPS 위치 · 실시간 날씨 연동</p>
+                            <p id="weather-subtext" class="text-[10px] text-slate-600 mt-0.5 font-medium">현재 GPS 위치 · 실시간 날씨 연동</p>
                         </div>
-                        <div id="weather-icon-box" class="bg-white/90 p-3 rounded-2xl shadow-xs text-3xl weather-emoji">
+                        <div id="weather-icon-box" class="bg-white/90 p-2 rounded-xl shadow-xs text-2xl weather-emoji">
                             ☁️
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mt-2 relative z-10">
-                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
-                            <span class="text-xs text-slate-500">습도</span>
-                            <span id="val-rain" class="text-xs font-bold text-blue-600">69%</span>
+                    <div class="grid grid-cols-4 gap-1.5 mt-1 relative z-10">
+                        <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
+                            <span class="text-[9px] text-slate-400">습도</span>
+                            <span id="val-rain" class="text-[11px] font-bold text-blue-600 mt-0.5">69%</span>
                         </div>
-                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
-                            <span class="text-xs text-slate-500">바람</span>
-                            <span id="val-wind" class="text-xs font-bold text-slate-700">2mph</span>
+                        <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
+                            <span class="text-[9px] text-slate-400">바람</span>
+                            <span id="val-wind" class="text-[11px] font-bold text-slate-700 mt-0.5">2mph</span>
                         </div>
-                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
-                            <span class="text-xs text-slate-500">자외선</span>
-                            <span id="val-uv" class="text-xs font-bold text-amber-600">좋음 (0)</span>
+                        <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
+                            <span class="text-[9px] text-slate-400">자외선</span>
+                            <span id="val-uv" class="text-[11px] font-bold text-amber-600 mt-0.5">좋음</span>
                         </div>
-                        <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
-                            <span class="text-xs text-slate-500">미세먼지</span>
-                            <span id="val-dust" class="text-xs font-bold text-emerald-600">좋음</span>
+                        <div class="bg-white/90 backdrop-blur-xs px-2 py-1.5 rounded-xl flex flex-col items-center shadow-2xs">
+                            <span class="text-[9px] text-slate-400">미세먼지</span>
+                            <span id="val-dust" class="text-[11px] font-bold text-emerald-600 mt-0.5">좋음</span>
                         </div>
                     </div>
                 </div>
 
+                <!-- 넌센스 퀴즈 위젯 -->
+                <div onclick="toggleQuizAnswer()" class="bg-amber-50 border border-amber-200 p-3 rounded-2xl shadow-xs cursor-pointer hover:bg-amber-100/60 transition-all select-none">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <span class="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                            🧩 오늘의 넌센스 퀴즈
+                        </span>
+                        <span class="text-[9px] text-amber-500 font-semibold" id="quiz-hint-label">(정답은 터치)</span>
+                    </div>
+                    <p id="quiz-question" class="text-[11px] font-bold text-slate-800 leading-snug mt-0.5">
+                        퀴즈를 불러오는 중입니다...
+                    </p>
+                    <div id="quiz-answer-box" class="hidden mt-1.5 pt-1.5 border-t border-amber-200/60 text-[11px] font-bold text-indigo-700">
+                        💡 정답: <span id="quiz-answer-text"></span>
+                    </div>
+                </div>
+
                 <!-- 스마트 일상 브리핑 & 랜덤 명언 -->
-                <div class="bg-indigo-600 text-white p-4 rounded-2xl flex items-start gap-3 shadow-md">
-                    <span class="text-xl">💡</span>
-                    <div class="text-xs flex-1">
-                        <span class="font-bold block mb-1 text-indigo-100">HHH 스마트 일상 브리핑</span>
-                        <p id="smart-briefing-text" class="leading-relaxed text-indigo-50 mb-2">
+                <div class="bg-indigo-600 text-white p-3.5 rounded-2xl flex items-start gap-2.5 shadow-md">
+                    <span class="text-lg">💡</span>
+                    <div class="text-[11px] flex-1">
+                        <span class="font-bold block mb-0.5 text-indigo-100">HHH 스마트 일상 브리핑</span>
+                        <p id="smart-briefing-text" class="leading-relaxed text-indigo-50 mb-1.5">
                             현재 위치의 실시간 날씨 정보를 불러오고 있습니다... ✨
                         </p>
-                        <div id="random-quote-box" class="pt-2 border-t border-indigo-500/50 text-[11px] text-indigo-200 italic font-medium">
+                        <div id="random-quote-box" class="pt-1.5 border-t border-indigo-500/50 text-[10px] text-indigo-200 italic font-medium">
                             <!-- 무작위 명언 -->
                         </div>
                     </div>
                 </div>
 
                 <!-- 홈 서브 탭 -->
-                <div class="flex bg-slate-200/70 p-1 rounded-2xl">
-                    <button onclick="switchHomeSegment('checklist')" id="seg-btn-checklist" class="flex-1 py-2 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all cursor-pointer">
+                <div class="flex bg-slate-200/70 p-1 rounded-xl">
+                    <button onclick="switchHomeSegment('checklist')" id="seg-btn-checklist" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-indigo-600 shadow-sm transition-all cursor-pointer">
                         오늘의 준비물 모아보기
                     </button>
-                    <button onclick="switchHomeSegment('tasks')" id="seg-btn-tasks" class="flex-1 py-2 text-xs font-bold rounded-xl text-slate-600 transition-all cursor-pointer">
+                    <button onclick="switchHomeSegment('tasks')" id="seg-btn-tasks" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-600 transition-all cursor-pointer">
                         오늘의 일정
                     </button>
                 </div>
 
-                <div id="home-checklist-view" class="space-y-3">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">🎒 필수 고정 및 오늘 날짜 준비물</h3>
-                    <div id="home-supplies-container" class="space-y-2"></div>
+                <div id="home-checklist-view" class="space-y-2">
+                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">🎒 필수 고정 및 오늘 날짜 준비물</h3>
+                    <div id="home-supplies-container" class="space-y-1.5"></div>
                 </div>
 
-                <div id="home-tasks-view" class="space-y-2 hidden">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">📝 오늘의 등록된 일정</h3>
-                    <div id="home-tasks-container" class="space-y-2"></div>
+                <div id="home-tasks-view" class="space-y-1.5 hidden">
+                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">📝 오늘의 등록된 일정</h3>
+                    <div id="home-tasks-container" class="space-y-1.5"></div>
                 </div>
             </div>
 
@@ -259,11 +275,11 @@
                     <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
                 </a>
 
-                <a href="https://section.blog.naver.com/HotTopic.naver" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                <a href="naverblog://home" onclick="openApp('naverblog://home', 'https://section.blog.naver.com/HotTopic.naver')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
                     <div class="flex items-center gap-3">
                         <span class="text-2xl">🟢</span>
                         <div>
-                            <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Naver</span>
+                            <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Naver Blog</span>
                             <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">네이버 블로그 실시간 인기글</h4>
                         </div>
                     </div>
@@ -281,7 +297,7 @@
                     <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl shrink-0">바로가기 ↗</span>
                 </a>
 
-                <a href="https://twitter.com/explore/tabs/trending" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                <a href="twitter://timeline" onclick="openApp('twitter://timeline', 'https://twitter.com/explore/tabs/trending')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
                     <div class="flex items-center gap-3">
                         <span class="text-2xl">💬</span>
                         <div>
@@ -423,24 +439,197 @@
             "\"웃음 없는 하루는 낭비한 하루다.\" - 찰리 채플린",
             "\"오늘 하루가 인생의 전부인 것처럼 살아라.\" - 루네우스",
             "\"희망은 붕괴하지 않는 유일한 보물이다.\" - 디오게네스"
+        ],
+
+        const nonsenseQuizzes = [
+            { q: "세상에서 가장 가난한 왕은?", a: "최신왕 (최신 킹)" },
+            { q: "왕이 낙담했을 때 하는 행동은?", a: "종이접기" },
+            { q: "세상에서 가장 뜨거운 전화는?", a: "화상전화" },
+            { q: "차를 도로에 버리면?", a: "카폐인 (Car+Waste)" },
+            { q: "소금의 원래 이름은?", a: "소문난 금" },
+            { q: "발이 네 개 달린 짐승이 소리 지르면?", a: "소리 질러!" },
+            { q: "세상에서 가장 비싼 새는?", a: "백억 새 (백조)" },
+            { q: "우주인이 지구에 오는 방법은?", a: "지구별로" },
+            { q: "가장 비싼 과일은?", a: "다이아몬드 (과일 아님)" },
+            { q: "오리가 날면?", a: "날아오리" },
+            { q: "모래가 지각하면?", a: "느낌적인 느낌 (모래시계)" },
+            { q: "바다의 왕은?", a: "해왕성" },
+            { q: "세상에서 가장 빠른 새는?", a: "눈 깜짝할 새" },
+            { q: "펭귄이 사는 학교는?", a: "냉동고등학교" },
+            { q: "세상에서 가장 무서운 김은?", a: "귀신김" },
+            { q: "비가 오면 걷는 사람?", a: "오줌싸개" },
+            { q: "나무가 삐지면?", a: "토막나무" },
+            { q: "가장 야한 닭은?", a: "후라이드 치킨 (벗고 있으니까)" },
+            { q: "사람의 몸무게가 가장 많이 나갈 때는?", a: "철들 때" },
+            { q: "왕이 궁에 들어갈 때 외치는 소리는?", a: "지붕뚫고 하이킥" },
+            { q: "참새가 방앗간을 그냥 지나치지 못하는 이유는?", a: "새니까" },
+            { q: "길거리에 버려진 피아노의 이름은?", a: "스트리트 피아노" },
+            { q: "오렌지쥬스의 영어 이름은?", a: "오렌지 주스 (시크함)" },
+            { q: "바나나가 웃으면?", a: "바나나킥" },
+            { q: "세상에서 가장 쉬운 숫자는?", a: "십만 (10만000)" },
+            { q: "불이 났을 때 소방관이 출동하지 않는 곳은?", a: "불이야 (글자니까)" },
+            { q: "세상에서 가장 솔직한 동물은?", a: "치타 (치팅 안함)" },
+            { q: "호랑이가 가방에 들어가면?", a: "타이거 (Tie+Gear)" },
+            { q: "고양이가 싫어하는 운동은?", a: "고양이세수" },
+            { q: "식물이 죽으면?", a: "다육이" },
+            { q: "세상에서 가장 똑똑한 뱀은?", a: "코브라" },
+            { q: "아몬드가 죽으면?", a: "다이아몬드" },
+            { q: "가장 슬픈 음악은?", a: "클래식 (Cry+Classic)" },
+            { q: "왕이 넘어지면?", a: "킹콩" },
+            { q: "소나무가 삐지면?", a: "칫솔" },
+            { q: "세상에서 가장 달콤한 술은?", a: "입술" },
+            { q: "닭이 가장 싫어하는 도시는?", a: "마드리드 (말 이리 드?)" },
+            { q: "곰이 도망치면?", a: "웅담" },
+            { q: "차를 타고 가다 길을 잃으면?", a: "카카오맵" },
+            { q: "세상에서 가장 차가운 바다는?", a: "추워터 (Cold Water)" },
+            { q: "꿀꿀이가 두 마리면?", a: "투 꿀꿀" },
+            { q: "바다의 지진을 뭐라고 할까?", a: "물결" },
+            { q: "책을 가장 많이 먹는 동물은?", a: "하마 (책 읽는 하마)" },
+            { q: "세상에서 가장 게으른 학생은?", a: "대충생" },
+            { q: "똥의 성은?", a: "응가 (응씨)" },
+            { q: "가장 추운 성은?", a: "이순신 (이순신 장군 칼바람)" },
+            { q: "모래가 울면?", a: "토네이도" },
+            { q: "소가 웃는 소리를 뭐라고 할까?", a: "소하하" },
+            { q: "세상에서 가장 맛없는 라면은?", a: "라면이 아니지롱" },
+            { q: "도둑이 가장 좋아하는 아이스크림은?", a: "보석바" },
+            { q: "왕이 넘어졌다가 일어나면서 하는 말은?", a: "일어났킹" },
+            { q: "펭귄이 얼음 위에서 미끄러지면?", a: "빙판길" },
+            { q: "세상에서 가장 억울한 감은?", a: "속상감" },
+            { q: "불이 났을 때 구하면 안 되는 것은?", a: "불" },
+            { q: "바나나가 한 줄로 서 있으면?", a: "바나나스탠드" },
+            { q: "고래가 구구단을 외우면?", a: "고래밥" },
+            { q: "세상에서 가장 빠른 치킨은?", a: "나르는 치킨" },
+            { q: "토마토가 병원에 간 이유는?", a: "케첩이 되려고" },
+            { q: "비가 오면 가장 좋아하는 곤충은?", a: "비행기" },
+            { q: "소금의 사촌은?", a: "짠맛" },
+            { q: "세상에서 가장 뚱뚱한 새는?", a: "뚱새" },
+            { q: "참기름이 몸에 좋은 이유는?", a: "고소하니까" },
+            { q: "누룽지를 영어로 하면?", a: "Bobby Brown (밥이 브라운)" },
+            { q: "세상에서 가장 빠른 차는?", a: "첫차" },
+            { q: "가장 뜨거운 과일은?", a: "천도복숭아" },
+            { q: "오리가 얼어 죽으면?", a: "언오리" },
+            { q: "세상에서 가장 큰 방은?", a: "달방" },
+            { q: "못 박는 소리를 글자로 쓰면?", a: "악!" },
+            { q: "피아노가 화를 내면?", a: "그랜드 피아노" },
+            { q: "세상에서 가장 힘센 고양이는?", a: "치타" },
+            { q: "소가 웃으면?", a: "우하하" },
+            { q: "오리가 걸어 다니면?", a: "걸어오리" },
+            { q: "세상에서 가장 시원한 과일은?", a: "수박 (Watermelon)" },
+            { q: "펭귄이 북극에 가면?", a: "추워 죽음" },
+            { q: "세상에서 가장 달콤한 병은?", a: "사랑병" },
+            { q: "길 가는데 갑자기 돌이 날아오면?", a: "돌멩이" },
+            { q: "호랑이가 담배 피우던 시절의 이름은?", a: "옛날옛적" },
+            { q: "세상에서 가장 멋진 똥은?", a: "멋쟁이 똥" },
+            { q: "오징어가 좋아하는 술은?", a: "오징어입술" },
+            { q: "세상에서 가장 시끄러운 동물은?", a: "소" },
+            { q: "토끼가 가장 좋아하는 빵은?", a: "토끼빵" },
+            { q: "세상에서 가장 슬픈 식물은?", a: "시들시들" },
+            { q: "바다 위에 지은 집은?", a: "해운대" },
+            { q: "소금의 장점은?", a: "짜지 않다 (가격이)" },
+            { q: "세상에서 가장 빠른 벌레격투기는?", a: "바퀴벌레" },
+            { q: "개구리가 뛰어오르면?", a: "개굴개굴" },
+            { q: "세상에서 가장 더운 도시는?", a: "대구 (대프리카)" },
+            { q: "원숭이가 나무에서 떨어지면?", a: "원숭이도 나무에서 떨어진다" },
+            { q: "참새가 머리가 아프면?", a: "참새아픔" },
+            { q: "세상에서 가장 배고픈 나무는?", a: "배나무" },
+            { q: "돌이 우물에 빠지면?", a: "풍덩" },
+            { q: "세상에서 가장 비싼 똥은?", a: "금똥" },
+            { q: "오리가 길을 잃으면?", a: "미운오리새끼" },
+            { q: "세상에서 가장 차가운 새는?", a: "펭귄" },
+            { q: "소가 춤을 추면?", a: "소댄스" },
+            { q: "세상에서 가장 큰 손은?", a: "큰손" },
+            { q: "물고기의 반댓말은?", a: "불고기" },
+            { q: "세상에서 가장 무서운 개는?", a: "번개" },
+            { q: "오리가 노래를 부르면?", a: "오리가요" },
+            { q: "세상에서 가장 느린 동물은?", a: "달팽이" },
+            { q: "나무가 웃으면?", a: "웃는 나무" },
+            { q: "세상에서 가장 행복한 바다는?", a: "사랑해" },
+            { q: "비가 오면 안 오는 것은?", a: "해" },
+            { q: "세상에서 가장 맛있는 바다는?", a: "회바다" },
+            { q: "오리가 얼음물에 빠지면?", a: "얼음오리" },
+            { q: "세상에서 가장 큰 동물은?", a: "고래" },
+            { q: "소가 뛰어가면?", a: "소달구지" },
+            { q: "세상에서 가장 슬픈 동물은?", a: "슬픈 개" },
+            { q: "참새가 노래를 부르면?", a: "참새콘서트" },
+            { q: "세상에서 가장 빠른 새는?", a: "치타새" },
+            { q: "오리가 수영을 잘하는 이유는?", a: "발에 물갈퀴가 있어서" },
+            { q: "세상에서 가장 무서운 의자는?", a: "전기의자" },
+            { q: "돌이 병원에 가면?", a: "돌팔이" },
+            { q: "세상에서 가장 맛있는 차는?", a: "녹차" },
+            { q: "오리가 집을 나가면?", a: "가출오리" },
+            { q: "세상에서 가장 예쁜 꽃은?", a: "장미" },
+            { q: "소가 노래를 부르면?", a: "소송" },
+            { q: "세상에서 가장 빠른 동물은?", a: "치타" },
+            { q: "오리가 병원에 가면?", a: "오리진료" },
+            { q: "세상에서 가장 슬픈 과일은?", a: "눈물과일" },
+            { q: "참새가 학교에 가면?", a: "참새학생" },
+            { q: "세상에서 가장 큰 나무는?", a: "거대나무" },
+            { q: "오리가 친구를 만나면?", a: "반가워오리" },
+            { q: "세상에서 가장 비싼 차는?", a: "벤츠" },
+            { q: "소가 길을 잃으면?", a: "미아소" },
+            { q: "세상에서 가장 맛있는 빵은?", a: "식빵" },
+            { q: "오리가 잠을 자면?", a: "쿨쿨오리" },
+            { q: "세상에서 가장 무서운 영화는?", a: "공포영화" },
+            { q: "돌이 숨을 쉬면?", a: "돌 숨" },
+            { q: "세상에서 가장 빠른 기차는?", a: "KTX" },
+            { q: "오리가 화가 나면?", a: "뿔난오리" },
+            { q: "세상에서 가장 큰 집은?", a: "대저택" },
+            { q: "소가 웃으면 뭐라고 할까?", a: "소박소박" },
+            { q: "세상에서 가장 슬픈 노래는?", a: "발라드" },
+            { q: "참새가 잠을 자면?", a: "꿈나라참새" },
+            { q: "세상에서 가장 빠른 비행기는?", a: "초음속 비행기" },
+            { q: "오리가 춤을 추면?", a: "댄스오리" },
+            { q: "세상에서 가장 맛있는 고기는?", a: "소고기" },
+            { q: "오리가 웃으면?", a: "오하하" },
+            { q: "세상에서 가장 무서운 밤은?", a: "귀신나오는 밤" },
+            { q: "돌이 굴러가면?", a: "데굴데굴" },
+            { q: "세상에서 가장 빠른 바람은?", a: "태풍" },
+            { q: "오리가 달리기를 하면?", a: "달려오리" },
+            { q: "세상에서 가장 큰 바다는?", a: "태평양" },
+            { q: "소가 물에 빠지면?", a: "소젖" },
+            { q: "세상에서 가장 슬픈 영화는?", a: "새드무비" },
+            { q: "참새가 날아가면?", a: "날아라참새" },
+            { q: "세상에서 가장 빠른 동물은?", a: "치타" },
+            { q: "오리가 수영을 하면?", a: "첨벙첨벙" },
+            { q: "세상에서 가장 맛있는 찌개는?", a: "김치찌개" },
+            { q: "오리가 노래를 부르면?", a: "음악오리" },
+            { q: "세상에서 가장 무서운 사자는?", a: "밀림의 왕 사자" },
+            { q: "돌이 깨지면?", a: "조각돌" },
+            { q: "세상에서 가장 빠른 로켓은?", a: "나사 로켓" },
+            { q: "오리가 비행기를 타면?", a: "하늘오리" },
+            { q: "세상에서 가장 큰 산은?", a: "에베레스트산" },
+            { q: "소가 밥을 먹으면?", a: "여물" },
+            { q: "세상에서 가장 슬픈 이야기는?", a: "비극" },
+            { q: "참새가 웃으면?", a: "참새웃음" },
+            { q: "세상에서 가장 빠른 빛은?", a: "광속" },
+            { q: "오리가 선물을 받으면?", a: "행복오리" },
+            { q: "세상에서 가장 맛있는 과자는?", a: "초코칩" },
+            { q: "오리가 잠에서 깨면?", a: "번쩍오리" },
+            { q: "세상에서 가장 무서운 귀신은?", a: "처녀귀신" },
+            { q: "돌이 노래를 부르면?", a: "돌발송" },
+            { q: "세상에서 가장 빠른 소리는?", a: "음속" },
+            { q: "오리가 요리를 하면?", a: "요리사오리" },
+            { q: "세상에서 가장 큰 별은?", a: "태양" },
+            { q: "소가 잠을 자면?", a: "꿈꾸는 소" },
+            { q: "세상에서 가장 슬픈 시는?", a: "비가" },
+            { q: "참새가 노래를 부르면?", a: "참새합창" },
+            { q: "세상에서 가장 빠른 생각은?", a: "마음" },
+            { q: "오리가 박수를 치면?", a: "짝짝오리" },
+            { q: "세상에서 가장 맛있는 아이스크림은?", a: "바닐라" },
+            { q: "오리가 숙제를 하면?", a: "똑똑오리" },
+            { q: "세상에서 가장 무서운 괴물은?", a: "프랑켄슈타인" },
+            { q: "돌이 걸어 다니면?", a: "돌거인" },
+            { q: "세상에서 가장 빠른 것은?", a: "시간" }
         ];
 
-        const hourlyWeather = [
-            { time: '17:00', temp: '20°', type: 'sunny', desc: '맑음', rain: '65%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☀️' },
-            { time: '18:00', temp: '19°', type: 'cloudy', desc: '구름많음', rain: '69%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
-            { time: '19:00', temp: '18°', type: 'cloudy', desc: '구름많음', rain: '73%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
-            { time: '20:00', temp: '17°', type: 'cloudy', desc: '흐림', rain: '75%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
-            { time: '21:00', temp: '17°', type: 'sunny', desc: '맑음', rain: '75%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '🌙' },
-            { time: '22:00', temp: '17°', type: 'cloudy', desc: '구름많음', rain: '77%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
-            { time: '23:00', temp: '16°', type: 'cloudy', desc: '구름많음', rain: '79%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
-        ];
+        let currentQuiz = {};
 
-        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v17')) || [];
-        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v17')) || {};
+        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v20')) || [];
+        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v20')) || {};
 
         function saveData() {
-            localStorage.setItem('hhh_supplies_v17', JSON.stringify(suppliesList));
-            localStorage.setItem('hhh_tasks_v17', JSON.stringify(userChecklists));
+            localStorage.setItem('hhh_supplies_v20', JSON.stringify(suppliesList));
+            localStorage.setItem('hhh_tasks_v20', JSON.stringify(userChecklists));
         }
 
         function openApp(appScheme, webUrl) {
@@ -504,12 +693,34 @@
             renderCalendar();
             renderTasks();
             initRandomQuote();
+            initRandomQuiz();
             initUserLocation();
         };
 
         function initRandomQuote() {
             const randomIndex = Math.floor(Math.random() * quotesPool.length);
             document.getElementById('random-quote-box').innerText = quotesPool[randomIndex];
+        }
+
+        function initRandomQuiz() {
+            const randomIndex = Math.floor(Math.random() * nonsenseQuizzes.length);
+            currentQuiz = nonsenseQuizzes[randomIndex];
+            document.getElementById('quiz-question').innerText = `${currentQuiz.q} (정답은 터치)`;
+            document.getElementById('quiz-answer-text').innerText = currentQuiz.a;
+            document.getElementById('quiz-answer-box').classList.add('hidden');
+            document.getElementById('quiz-hint-label').innerText = "(정답은 터치)";
+        }
+
+        function toggleQuizAnswer() {
+            const ansBox = document.getElementById('quiz-answer-box');
+            const hintLabel = document.getElementById('quiz-hint-label');
+            if (ansBox.classList.contains('hidden')) {
+                ansBox.classList.remove('hidden');
+                hintLabel.innerText = "✨ 정답 확인 완료";
+            } else {
+                ansBox.classList.add('hidden');
+                hintLabel.innerText = "(정답은 터치)";
+            }
         }
 
         function initUserLocation() {
@@ -566,16 +777,16 @@
             document.getElementById('home-checklist-view').classList.toggle('hidden', seg !== 'checklist');
             document.getElementById('home-tasks-view').classList.toggle('hidden', seg !== 'tasks');
             
-            document.getElementById('seg-btn-checklist').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${seg === 'checklist' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
-            document.getElementById('seg-btn-tasks').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${seg === 'tasks' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
+            document.getElementById('seg-btn-checklist').className = `flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${seg === 'checklist' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
+            document.getElementById('seg-btn-tasks').className = `flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${seg === 'tasks' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
         }
 
         function renderHourlyTabs() {
             const container = document.getElementById('hourly-tabs');
             container.innerHTML = hourlyWeather.map((hw, idx) => `
-                <button onclick="selectHour(${idx})" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center shrink-0 transition-all cursor-pointer ${selectedHourIndex === idx ? 'bg-indigo-600 text-white shadow-sm scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
-                    <span class="text-[10px] opacity-80">${hw.time}</span>
-                    <span class="text-sm font-bold my-0.5">${hw.temp}</span>
+                <button onclick="selectHour(${idx})" class="px-2 py-1 rounded-lg text-[11px] font-semibold flex flex-col items-center shrink-0 transition-all cursor-pointer ${selectedHourIndex === idx ? 'bg-indigo-600 text-white shadow-sm scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                    <span class="text-[9px] opacity-80">${hw.time}</span>
+                    <span class="text-xs font-bold my-0.5">${hw.temp}</span>
                     <span class="text-[9px] weather-emoji">${hw.icon}</span>
                 </button>
             `).join('');
@@ -637,13 +848,13 @@
             const todaySupplies = suppliesList.filter(s => s.isEssential || s.date === selectedDate);
 
             if (todaySupplies.length === 0) {
-                homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">오늘 등록된 준비물이 없습니다.</p>`;
+                homeContainer.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-3 bg-slate-50 rounded-xl">오늘 등록된 준비물이 없습니다.</p>`;
             } else {
                 homeContainer.innerHTML = todaySupplies.map(s => `
-                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center">
                         <div class="flex items-center gap-2">
-                            ${s.isEssential ? '<span class="text-xs text-amber-500 font-bold">⭐ [필수]</span>' : '<span class="text-xs text-indigo-500 font-bold">📌 [오늘]</span>'}
-                            <span class="text-xs font-semibold text-slate-800">${s.text}</span>
+                            ${s.isEssential ? '<span class="text-[11px] text-amber-500 font-bold">⭐ [필수]</span>' : '<span class="text-[11px] text-indigo-500 font-bold">📌 [오늘]</span>'}
+                            <span class="text-[11px] font-semibold text-slate-800">${s.text}</span>
                         </div>
                         <span class="text-[10px] text-slate-400 font-medium">${s.date}</span>
                     </div>
@@ -770,15 +981,15 @@
             const tasks = userChecklists[selectedDate] || [];
 
             if (tasks.length === 0) {
-                homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">등록된 일정이 없습니다.</p>`;
+                homeContainer.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-3 bg-slate-50 rounded-xl">등록된 일정이 없습니다.</p>`;
             } else {
                 homeContainer.innerHTML = tasks.map(t => `
-                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
+                    <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg">${t.time}</span>
-                            <span class="text-xs font-semibold ${t.completed ? 'line-through text-slate-400' : 'text-slate-800'}">${t.text}</span>
+                            <span class="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-lg">${t.time}</span>
+                            <span class="text-[11px] font-semibold ${t.completed ? 'line-through text-slate-400' : 'text-slate-800'}">${t.text}</span>
                         </div>
-                        <span class="text-xs">${t.completed ? '✅' : '⏳'}</span>
+                        <span class="text-[11px]">${t.completed ? '✅' : '⏳'}</span>
                     </div>
                 `).join('');
             }
