@@ -363,9 +363,8 @@
 
     </div>
 
-    <!-- JavaScript 로직 -->
+    <!-- JavaScript 로직 (LocalStorage 연동 포함) -->
     <script>
-        // 앱 상태 데이터
         let currentTab = 'home';
         let homeSegment = 'checklist';
         let selectedDate = '2026-10-23';
@@ -386,8 +385,8 @@
             { time: '21:00', temp: '11°', type: 'snow', desc: '내일 새벽 눈/비 예고', rain: '60%', wind: '5m/s', uv: '낮음', dust: '보통', icon: '❄️' },
         ];
 
-        // 준비물 리스트
-        let suppliesList = [
+        // 준비물 리스트 (LocalStorage 연동)
+        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies')) || [
             { id: 1, text: '지갑 👛', isEssential: true, date: '2026-10-23' },
             { id: 2, text: '핸드폰 📱', isEssential: true, date: '2026-10-23' },
             { id: 3, text: '에어팟 🎧', isEssential: true, date: '2026-10-23' },
@@ -395,8 +394,8 @@
             { id: 5, text: '회의 자료 📁', isEssential: false, date: '2026-10-30' },
         ];
 
-        // 일정 리스트
-        let userChecklists = {
+        // 일정 리스트 (LocalStorage 연동)
+        let userChecklists = JSON.parse(localStorage.getItem('hhh_checklists')) || {
             '2026-10-23': [
                 { id: 1, text: '팀 회의 자료 최종 검토', completed: false, time: '14:00' },
                 { id: 2, text: '오후 미팅 장소 예약 확인', completed: true, time: '16:00' }
@@ -405,6 +404,12 @@
                 { id: 3, text: '프로젝트 최종 발표', completed: false, time: '10:00' }
             ]
         };
+
+        // 데이터 저장 함수
+        function saveData() {
+            localStorage.setItem('hhh_supplies', JSON.stringify(suppliesList));
+            localStorage.setItem('hhh_checklists', JSON.stringify(userChecklists));
+        }
 
         // 자동 이모지 매칭 함수
         function getAutoEmojiText(text) {
@@ -601,6 +606,8 @@
             suppliesList.push(newItem);
             textInput.value = '';
             essentialInput.checked = false;
+            
+            saveData(); // 데이터 저장
             renderSupplies();
             switchTab('home');
         }
@@ -608,12 +615,12 @@
         // 준비물 삭제
         function deleteSupply(id) {
             suppliesList = suppliesList.filter(s => s.id !== id);
+            saveData(); // 데이터 저장
             renderSupplies();
         }
 
         // 준비물 렌더링
         function renderSupplies() {
-            // 홈 화면용 준비물 (필수고정 OR 오늘 날짜 항목)
             const homeContainer = document.getElementById('home-supplies-container');
             const todaySupplies = suppliesList.filter(s => s.isEssential || s.date === selectedDate);
 
@@ -631,7 +638,6 @@
                 `).join('');
             }
 
-            // 준비물 탭 전체 목록
             const allContainer = document.getElementById('all-supplies-list');
             if (suppliesList.length === 0) {
                 allContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">등록된 준비물이 없습니다.</p>`;
@@ -718,6 +724,7 @@
             });
 
             textInput.value = '';
+            saveData(); // 데이터 저장
             renderTasks();
             renderCalendar();
         }
@@ -728,6 +735,7 @@
                 const task = userChecklists[selectedDate].find(t => t.id === id);
                 if (task) task.completed = !task.completed;
             }
+            saveData(); // 데이터 저장
             renderTasks();
         }
 
@@ -736,6 +744,7 @@
             if (userChecklists[selectedDate]) {
                 userChecklists[selectedDate] = userChecklists[selectedDate].filter(t => t.id !== id);
             }
+            saveData(); // 데이터 저장
             renderTasks();
             renderCalendar();
         }
@@ -746,7 +755,6 @@
             const todoContainer = document.getElementById('todo-list-container');
             const tasks = userChecklists[selectedDate] || [];
 
-            // 홈 화면용 일정 리스트
             if (tasks.length === 0) {
                 homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">등록된 일정이 없습니다.</p>`;
             } else {
@@ -761,7 +769,6 @@
                 `).join('');
             }
 
-            // 할 일 탭 리스트
             if (tasks.length === 0) {
                 todoContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">이 날짜에 등록된 일정이 없습니다.</p>`;
             } else {
