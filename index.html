@@ -3,9 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HHH Assistant 앱</title>
+    <title>HHH Assistant 앱 (공유 버전)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Firebase SDK (v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // 🔥 [필수] 본인의 Firebase 콘솔에서 발급받은 설정값으로 교체하세요!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsXNCJelzNHqkj14yCQJoefqosVI3qc8g",
+            authDomain: "hhh-assistant-a75d5.firebaseapp.com",
+            databaseURL: "https://hhh-assistant-a75d5-default-rtdb.firebaseio.com",
+            projectId: "hhh-assistant-a75d5",
+            storageBucket: "hhh-assistant-a75d5.firebasestorage.app",
+            messagingSenderId: "621635460466",
+            appId: "1:621635460466:web:1f4471159dfb0c234e91eb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 전역으로 노출하여 기존 함수들이 사용하도록 설정
+        window.db = db;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbOnValue = onValue;
+        window.dbGet = get;
+        window.dbChild = child;
+
+        // 파이어베이스 연결 후 초기 데이터 동기화 시작 트리거
+        window.initFirebaseSync();
+    </script>
+
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         body { font-family: 'Pretendard', sans-serif; background-color: #0f172a; }
@@ -52,7 +84,7 @@
             <div class="flex items-center gap-2">
                 <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-md">H</div>
                 <div class="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                    HHH Assistant <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v5.4</span>
+                    HHH Assistant <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v5.4 (공유모드)</span>
                 </div>
             </div>
             <!-- 위치 및 날씨 새로고침 버튼 -->
@@ -160,7 +192,7 @@
                     <div id="home-tasks-container" class="space-y-1.5"></div>
                 </div>
 
-                <!-- 넌센스 위젯 (맨 아래 섹션) -->
+                <!-- 넌센스 위젯 -->
                 <div onclick="toggleQuizAnswer()" class="bg-amber-50 border border-amber-200 p-3 rounded-2xl shadow-xs cursor-pointer hover:bg-amber-100/60 transition-all select-none mt-2">
                     <div class="flex items-center justify-between mb-0.5">
                         <span class="text-[10px] font-bold text-amber-700 flex items-center gap-1">
@@ -180,7 +212,7 @@
             <!-- 2. 준비물 탭 -->
             <div id="tab-supplies" class="p-4 space-y-4 hidden">
                 <form onsubmit="handleAddSupply(event)" class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-                    <h4 class="text-xs font-bold text-slate-700">새로운 준비물 추가</h4>
+                    <h4 class="text-xs font-bold text-slate-700">새로운 준비물 추가 (공유)</h4>
                     <input type="text" id="sup-input-text" placeholder="예: 우산, 노트북, 마스크, 보조배터리..." required
                         class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     
@@ -239,7 +271,7 @@
                 <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
                     <div class="flex justify-between items-center">
                         <h3 id="selected-date-todo-title" class="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                            📌 10월 23일 일정 관리
+                            📌 일정 관리 (공유)
                         </h3>
                     </div>
 
@@ -332,16 +364,16 @@
             <div id="tab-gacha" class="p-4 space-y-4 hidden">
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-700 text-white p-5 rounded-3xl shadow-lg text-center space-y-3">
                     <div class="text-4xl bounce-ticket">🧸</div>
-                    <h3 class="text-sm font-bold">오늘의 행운 인형뽑기 & 경품</h3>
+                    <h3 class="text-sm font-bold">공유 인형뽑기 & 경품</h3>
                     <p class="text-[11px] text-indigo-100 leading-relaxed">
-                        귀여운 쪽지를 클릭하여 오늘의 경품을 확인해보세요!<br>(매일 새벽 6시 초기화, 하루에 딱 1번만 가능합니다 ✨)
+                        귀여운 쪽지를 클릭하여 오늘의 경품을 확인해보세요!<br>(두 사람이 공용으로 참여 및 누적 집계됩니다 ✨)
                     </p>
                 </div>
 
-                <!-- 경품 및 확률, 누적 당첨 횟수 안내 표 -->
+                <!-- 경품 표 -->
                 <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-2">
                     <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-1">
-                        📊 경품 및 확률 / 누적 당첨 현황
+                        📊 경품 및 확률 / 누적 당첨 현황 (공유)
                     </h4>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-[11px]">
@@ -475,10 +507,6 @@
                     <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
                         ⚙️ 사용자 프로필 및 운세 설정
                     </h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        실시간 맞춤 운세를 확인하기 위해 생년월일, 별자리, 태어난 시간을 입력해주세요.
-                    </p>
-
                     <div class="space-y-3 pt-1">
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 block mb-1">생년월일</label>
@@ -525,12 +553,6 @@
                             <span>💾 내 데이터 백업하기 (다운로드)</span>
                         </button>
                     </div>
-                    <div class="pt-1">
-                        <label class="w-full bg-slate-100 text-slate-700 py-3 rounded-2xl text-xs font-bold border border-slate-200 shadow-2xs hover:bg-slate-200 transition cursor-pointer flex items-center justify-center gap-2">
-                            <span>📂 데이터 복원하기 (파일 불러오기)</span>
-                            <input type="file" id="import-file-input" accept=".json" onchange="importData(event)" class="hidden">
-                        </label>
-                    </div>
                 </div>
             </div>
 
@@ -570,7 +592,7 @@
 
     </div>
 
-    <!-- JavaScript 로직 -->
+    <!-- JavaScript 로직 (Firebase 연동) -->
     <script>
         let currentTab = 'home';
         let homeSegment = 'checklist';
@@ -580,12 +602,11 @@
         let calMonth = todayObj.getMonth();
         let selectedDate = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(todayObj.getDate()).padStart(2, '0')}`;
 
-        let userProfile = JSON.parse(localStorage.getItem('hhh_profile_v54')) || { birthdate: '2000-01-01', zodiac: '양자리', birthtime: '12:00' };
-        let gachaState = JSON.parse(localStorage.getItem('hhh_gacha_v54')) || { 
-            lastDrawnTimestamp: 0, 
-            prize: null,
-            counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 }
-        };
+        // 로컬 데이터 변수 (초기값)
+        let userProfile = { birthdate: '2000-01-01', zodiac: '양자리', birthtime: '12:00' };
+        let gachaState = { lastDrawnTimestamp: 0, prize: null, counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 } };
+        let suppliesList = [];
+        let userChecklists = {};
 
         const publicHolidays2026 = {
             '2026-01-01': '신정', '2026-03-01': '삼일절', '2026-05-05': '어린이날',
@@ -599,365 +620,91 @@
             "\"계획 없는 목표는 한낱 꿈에 불과하다.\" - 안투안 드 생텍쥐페리",
             "\"오늘 할 수 있는 일을 내일로 미루지 마라.\" - 벤자민 프랭클린",
             "\"작은 기회로부터 종종 위대한 업적이 시작된다.\" - 데모스테네스",
-            "\"성공한 사람이 되려 하지 말고 가치 있는 사람이 되려 하라.\" - 알베르트 아인슈타인",
-            "\"내일은 오늘 준비하는 사람의 것이다.\" - 말콤 X",
-            "\"삶이 있는 한 희망은 있다.\" - 키케로",
-            "\"산을 움직이려 하는 사람은 작은 돌을 먼저 움직이는 것부터 시작한다.\" - 공자",
-            "\"절대 어제를 후회하지 마라. 인생은 오늘의 나 안에 있고, 내일은 스스로 만드는 것이다.\" - L.론 허바드",
-            "\"행동은 모든 성공의 가장 기초적인 핵심이다.\" - 파블로 피카소"
+            "\"성공한 사람이 되려 하지 말고 가치 있는 사람이 되려 하라.\" - 알베르트 아인슈타인"
         ];
 
-        // 🌟 gflix.kr 넌센스 퀴즈 403선
         const nonsenseQuizzes = [
             { q: "도둑이 가장 싫어하는 아이스크림은?", a: "누가바" },
             { q: "차도가 따로 없는 나라는?", a: "인도" },
             { q: "매일 사과하는 나무는?", a: "사과나무" },
             { q: "가장 계산을 잘 하는 왕은?", a: "연산군" },
-            { q: "말은 말인데 타지 못하는 말은?", a: "거짓말" },
-            { q: "빵이 목장에 간 이유는?", a: "소보로" },
-            { q: "세상에서 가장 더러운 집은?", a: "똥집" },
-            { q: "뽀가 지구를 떠나는 것은?", a: "뽀빠이" },
-            { q: "못은 못인데 박을 수 없는 못은?", a: "연못" },
-            { q: "수학책을 난로 위에 놓으면?", a: "수학익힘책" },
-            { q: "텔레토비에서 뽀가 떠나면?", a: "뽀빠이" },
-            { q: "1위, 2위, 3위보다 4위를 더 좋아하는 사람은?", a: "장모" },
-            { q: "낫 놓고 기억자도 모르는 이유는?", a: "낫이 부러졌기 때문에" },
-            { q: "우리나라 군대가 있는 곳은?", a: "군대군대있음" },
-            { q: "겁쟁이들이 가지고 다니는 돌은?", a: "오돌오돌" },
-            { q: "곤충끼리 부딪히면?", a: "충돌" },
-            { q: "세상에서 가장 작은 시장은?", a: "벼룩시장" },
-            { q: "보름달 안에 반달이 여러 개 있는 것은?", a: "귤" },
-            { q: "가장 야한 가수는?", a: "다비치" },
-            { q: "누워서도 절대 볼 수 없는 천장은?", a: "입천장" },
-            { q: "비 오는 날 먹는 햄은?", a: "습햄" },
-            { q: "개가 딱 한 마리만 있는 나라는?", a: "독일" },
-            { q: "귀는 귀인데 못 듣는 귀는?", a: "뼈다귀" },
-            { q: "초인종이 없다를 두 글자로?", a: "노벨" },
-            { q: "중학생과 고등학생이 타는 차는?", a: "중고차" },
-            { q: "길면 길수록 좋은 강은?", a: "만수무강" },
-            { q: "가장 멋없는 춤은?", a: "엉거주춤" },
-            { q: "오리를 생으로 먹는 것은?", a: "회오리" },
-            { q: "광부가 많은 나라는?", a: "케냐" },
-            { q: "콜라와 마요네즈를 섞으면?", a: "버려야 한다" },
-            { q: "먹을수록 화가 나는 음식은?", a: "골탕" },
-            { q: "가장 오래된 망고는?", a: "할망고" },
-            { q: "자동차를 톡하고 치면?", a: "카톡" },
-            { q: "오리를 얼면 되는 것은?", a: "언덕" },
-            { q: "한국에서 가장 급하게 만든 떡은?", a: "헐레벌떡" },
-            { q: "눈은 눈인데 보지 못 하는 눈은?", a: "티눈" },
-            { q: "먹고 살기 위해 하는 내기는?", a: "모내기" },
-            { q: "다 컸는데도 더 크라고 하는 동물은?", a: "자라" },
-            { q: "축구공이 웃으면?", a: "풋볼" },
-            { q: "머리가 아플 때 얼마나 먹어야 할까?", a: "두통" },
-            { q: "약은 약인데 아껴 먹어야 하는 약은?", a: "절약" },
-            { q: "소금장수가 좋아하는 사람은?", a: "싱거운 사람" },
-            { q: "토끼 용 빗은?", a: "레빗" },
-            { q: "형을 좋아하는 동생은?", a: "형광펜" },
-            { q: "처음 만난 소가 하는 말은?", a: "반갑소" },
-            { q: "목욕탕에 가면 두고 나오는 것은?", a: "때" },
-            { q: "문을 두드리는 남자는?", a: "똑똑한 남자" },
-            { q: "담배만 있고 불이 없는 사람은?", a: "불필요한 사람" },
-            { q: "바나나가 웃으면?", a: "빙그레" },
-            { q: "공을 보는 스님은?", a: "구본승" },
-            { q: "닭은 닭인데 먹지 못하는 닭은?", a: "까닭" },
-            { q: "개와 오랑우탄이 결혼해서 낳은 것은?", a: "오랑캐" },
-            { q: "똥의 성은 무엇일까?", a: "응가" },
-            { q: "세상에서 가장 장사를 잘하는 동물은?", a: "판다" },
-            { q: "과소비가 심한 동물은?", a: "사자" },
-            { q: "아빠가 일어나면 엄마가 책을 보는 곳은?", a: "노래방" },
-            { q: "머리가 세 개면?", a: "헤드셋" },
-            { q: "쥐가 네 마리 모이면?", a: "쥐포" },
-            { q: "가장 강력한 즐거움을 세 글자로 말하면?", a: "최강희" },
-            { q: "여자가 주로 바르고 남자가 주로 먹는 것은?", a: "립스틱" },
-            { q: "이자 없이도 꿀 수 있는 것은?", a: "꿈" },
-            { q: "서울에 한파가 찾아오면?", a: "서울시립대" },
-            { q: "깡통을 찌그러트리고 패는 사람은?", a: "깡패" },
-            { q: "도둑이 도둑질 하러 가는 발걸음 소리는?", a: "털래털래" },
-            { q: "말다툼이 끊이지 않는 곳은?", a: "경마장" },
-            { q: "많이 맞을 수록 좋은 것은?", a: "시험 문제" },
-            { q: "방은 방인데 들어가기 싫은 방은?", a: "감방" },
-            { q: "서로 진짜 신이라고 우기는 신은?", a: "옥신각신" },
-            { q: "보기만 해도 취하는 술은?", a: "마술" },
-            { q: "사람들이 제일 싫어하는 거리는?", a: "걱정거리" },
-            { q: "노총각들이 가장 좋아하는 감은?", a: "색싯감" },
-            { q: "타자의 반대말은?", a: "안타" },
-            { q: "세탁소 주인이 좋아하는 차는?", a: "구기자차" },
-            { q: "가장 온순한 닭은?", a: "네네 치킨" },
-            { q: "음력 설날에만 사용하는 물은?", a: "구정물" },
-            { q: "경찰서의 반대말은?", a: "경찰앉아" },
-            { q: "구리는 구리인데 못 쓰는 구리는?", a: "멍텅구리" },
-            { q: "왕이 양쪽에 있으면?", a: "우왕좌왕" },
-            { q: "파리는 파리인데 날지 못하는 파리는?", a: "해파리" },
-            { q: "우리가 수업 시간에 자는 이유는?", a: "꿈을 갖기 위해" },
-            { q: "남이 울 때 웃는 사람은?", a: "장의사" },
-            { q: "맨날 사과만 하는 동물은?", a: "오소리" },
-            { q: "세 사람만 탈 수 있는 차는?", a: "인삼차" },
-            { q: "고추가 웃으면?", a: "풋고추" },
-            { q: "신이 버스에서 내리면?", a: "신내림" },
-            { q: "세종대왕이 추천하는 우유는?", a: "아야어여오요우유" },
-            { q: "산채비빔밥 반대 말은?", a: "죽은채비빔밥" },
-            { q: "도둑 고양이에게 가장 어울리는 금은?", a: "야금야금" },
-            { q: "사람이 옷을 벗게 해줄 수 있는 식물은?", a: "버섯" },
-            { q: "고개를 숙이고 눈물을 흘리는 것은?", a: "수도꼭지" },
-            { q: "꿩도 먹고 알도 먹는 사람은?", a: "꿩주인" },
-            { q: "속상한 사람이 자주 가는 곳은?", a: "내과" },
-            { q: "묵은 묵인데 먹지 못하는 묵은?", a: "침묵" },
-            { q: "아재가 좋아하는 악기는?", a: "아쟁" },
-            { q: "석유가 넘쳐나는 역은?", a: "중동역" },
-            { q: "피가 나야 좋은 것은?", a: "고스톱" },
-            { q: "살아있는 북은?", a: "거북" },
-            { q: "슈렉의 어머니는?", a: "녹색어머니" },
-            { q: "벌레 중 가장 빠른 벌레는?", a: "바퀴벌레" },
-            { q: "집에서 매일 먹는 약은?", a: "치약" },
-            { q: "인천앞바다의 반댓말은?", a: "인천엄마다" },
-            { q: "사람들이 즐겨 마시는 피는?", a: "커피" },
-            { q: "바늘만 가지고 다니는 사람은?", a: "실 없는 사람" },
-            { q: "사람의 몸무게가 가장 많이 나갈 때는?", a: "철들 때" },
-            { q: "가장 더러운 강은?", a: "요강" },
-            { q: "개리가 온천에 갔다를 네 글자로?", a: "스파개리" },
-            { q: "진짜 새의 이름은?", a: "참새" },
-            { q: "하느님이 기차에서 내리며 하는 말은?", a: "신내림" },
-            { q: "실내화가 영어로 인사하면?", a: "익스큐스미" },
-            { q: "돼지가 열 받으면?", a: "바베큐" },
-            { q: "딸기가 회사에서 짤리면?", a: "딸기 시럽" },
-            { q: "3월에 대학생이 강한 이유는?", a: "개강해서" },
-            { q: "침대에서 가장 야한 것?", a: "이불" },
-            { q: "꽃이 제일 좋아하는 벌은?", a: "재벌" },
-            { q: "새우가 주인공인 드라마는?", a: "대하드라마" },
-            { q: "차가 곰돌이 푸를 치면?", a: "카푸치노" },
-            { q: "검은 돌과 흰 돌이 만나서 싸우는 것은?", a: "바둑" },
-            { q: "신데렐라가 잠을 못 자면?", a: "모짜렐라" },
-            { q: "감은 감인데 먹지 못하는 감은?", a: "영감" },
-            { q: "감전을 당한 사람이 남긴 유언은?", a: "먼저감전" },
-            { q: "일본 프랑스 러시아를 3글자로 줄여 말하면?", a: "왜불러" },
-            { q: "딸이 기분이 좋으면?", a: "딸기 모찌" },
-            { q: "펄펄 끓여서 뜨거운데도 차다 라고 하는 것은?", a: "먹는 차" },
-            { q: "귀에 걸치는 다리는?", a: "안경다리" },
-            { q: "사람이 먹을 수 있는 제비는?", a: "수제비" },
-            { q: "똥 싸고 나온 물고기는?", a: "일본어" },
-            { q: "신사가 하는 인사는?", a: "신사임당" },
-            { q: "곰이 목욕하는 곳은?", a: "곰탕" },
-            { q: "길을 가다가 넘어진 오리를 세 글자로 말하면?", a: "철퍼덕" },
-            { q: "알부자는?", a: "계란장수" },
-            { q: "어부들이 가장 싫어하는 연예인은?", a: "배철수" },
-            { q: "오이의 나이는?", a: "52세" },
-            { q: "오랜 봉사 활동을 거쳐 빛을 본 사람은?", a: "심봉사" },
-            { q: "남녀가 자고 나면 생기는 것은?", a: "눈꼽" },
-            { q: "사람들이 가장 좋아하는 영화는?", a: "부귀영화" },
-            { q: "세상에서 가장 골치 아픈 끈은?", a: "지끈지끈" },
-            { q: "아마존에 살고 있는 사람은?", a: "아마, 존?" },
-            { q: "모였을 때 가장 먼저 잠드는 사람은?", a: "이미자" },
-            { q: "고등학생이 싫어하는 나무는?", a: "야자나무" },
-            { q: "물고기의 반댓말은?", a: "불고기" },
-            { q: "짱구와 오징어의 차이점은?", a: "오징어는 말릴 수 있지만 짱구는 못말려" },
-            { q: "당신은 비를 아십니까? 를 네 글자로 줄이면?", a: "너비아니" },
-            { q: "9가 하늘로 올라가면?", a: "비상구" },
-            { q: "눈과 구름, 칼을 세 글자로 하면?", a: "설운도" },
-            { q: "하늘에서 사는 개는?", a: "안개, 무지개, 번개" },
-            { q: "스님이 열 받을 때 하는 음식은?", a: "중화요리" },
-            { q: "개미네 집 주소는?", a: "허리도 가늘군 만지면 부러지리" },
-            { q: "가장 뜨거운 떡은?", a: "호떡" },
-            { q: "식인종이 투정 할 때 하는 말은?", a: "살맛안나" },
-            { q: "있어도 기분이 안 좋은 금은?", a: "세금" },
-            { q: "타이타닉의 구명보트는 몇 명이 탈수 있을까?", a: "9명" },
-            { q: "초등학생이 가장 좋아하는 동네는?", a: "방학동" },
-            { q: "진짜 문제투성이인 것은?", a: "시험지" },
-            { q: "폭력배가 많은 나라?", a: "칠레" },
-            { q: "아무리 예뻐도 미녀라고 못하는 이사람은?", a: "미남" },
-            { q: "세상에서 가장 빠른 닭은?", a: "후다닥" },
-            { q: "못팔고도 돈 번 사람은?", a: "철물점 주인" },
-            { q: "날마다 가슴에 흑심을 품고 있는 사람은?", a: "연필" },
-            { q: "소가 가장 무서워하는 말은?", a: "소피보러 간다" },
-            { q: "새 중에서 가장 빠른 새는?", a: "눈깜작할 새" },
-            { q: "미소의 반대말은?", a: "당기소" },
-            { q: "친구들과 술집에 가서 술값 안내려고 추는 춤은?", a: "주춤주춤" },
-            { q: "호주의 돈을 뭐라고 하는가?", a: "호주머니" },
-            { q: "노인들이 가장 좋아하는 목포는?", a: "나이아가라 목포" },
-            { q: "텔레토비가 차린 안경점 이름은?", a: "아이조아" },
-            { q: "엉덩이가 뚱뚱한 사람은?", a: "엉뚱한 사람" },
-            { q: "소나타는 누가 탈까?", a: "소" },
-            { q: "처녀가 타서는 안 되는 차는?", a: "아벨라" },
-            { q: "여자만 먹는 음식은?", a: "여탕" },
-            { q: "여자만 갖은 권리는?", a: "여권" },
-            { q: "학생들이 싫어하는 피자는?", a: "책 피자" },
-            { q: "신이 화가 나면?", a: "신발끈" },
-            { q: "개사가 사람을 가르친다를 4자로 줄이면?", a: "개인지도" },
-            { q: "광부가 가장 많은 나라은?", a: "케냐" },
-            { q: "울다가 다시 웃는 사람을 다섯 글자로?", a: "아까운사람" },
-            { q: "세상에서 가장 쉬운 숫자는?", a: "십구만(190,000)" },
-            { q: "세상에서 제일 뜨거운 과일은?", a: "천도복숭아" },
-            { q: "왕이 헤어질 때 하는 인사는?", a: "바이킹" },
-            { q: "동생과 형이 싸우는데 엄마가 동생 편만 드는 세상은?", a: "형편없는 세상" },
-            { q: "방금 화장실에서 나온 사람은?", a: "일본사람" },
-            { q: "정말 어렵게 지은 절 이름은?", a: "우여곡절" },
-            { q: "나무들이 나오는 드라마는?", a: "수목드라마" },
-            { q: "반성문을 영어로 하면?", a: "글로벌" },
-            { q: "베를린 음식을 먹으면 안 되는 이유?", a: "독일 수도" },
-            { q: "땅은 어떻게 울까?", a: "흙흙 ㅠㅠ" },
-            { q: "세상에서 가장 가난한 왕은?", a: "최저임금" },
-            { q: "영희는 오빠만 5명이다. 막내의 이름은?", a: "영희" },
-            { q: "갈매기가 좋아하는 룩은?", a: "끼룩" },
-            { q: "왕이 넘어지면?", a: "킹콩" },
-            { q: "가장 무서운 전화는?", a: "무선전화" },
-            { q: "스님이 내리면서 하는 말은?", a: "중도하차" },
-            { q: "자동차를 발로 차려고 하면?", a: "카놀라유" },
-            { q: "마른 옷은 벗고, 젖은 옷만 입는 것은?", a: "빨랫줄" },
-            { q: "왕에게 공을 던질 때 하는 말은?", a: "송구하옵니다" },
-            { q: "치과의사가 가장 싫어하는 아파트는?", a: "이편한세상" },
-            { q: "깨뜨리고 칭찬받는 것은?", a: "신기록" },
-            { q: "남자 두명이 연애를 하면?", a: "사내연애" },
-            { q: "미국에 비가오면?", a: "USB" },
-            { q: "벌거 벗은 남자들이 많이 사는 곳은?", a: "전라남도" },
-            { q: "뱃사람들이 제일 싫어하는 가수는?", a: "배철수" },
-            { q: "새우가 출연하는 드라마는?", a: "대하드라마" },
-            { q: "스캔들 없이 사생활이 깨끗한 가수는?", a: "노사연" },
-            { q: "세상에서 가장 잘 자는 사람은?", a: "이미자" },
-            { q: "스님들이 절에 없으면?", a: "부재중" },
-            { q: "신경통 환자들이 제일 싫어하는 악기는?", a: "비올라" },
-            { q: "인수가 화를 내면?", a: "인수분해" },
-            { q: "자전거를 탈 줄 모르는 사람을 5글자로 말하면?", a: "모타사이클" },
-            { q: "청소년들이 타고 다니는 차는?", a: "청소차" },
-            { q: "팥이 목마를 때 콩에게 하는 말은?", a: "콩나물" },
-            { q: "해가 우는 곳은?", a: "해운대" },
-            { q: "아홉 명의 자식을 세글자로 말하면?", a: "아이고" },
-            { q: "동생이 형을 좋아하는 것은?", a: "형광펜" },
-            { q: "사람들을 다 일어나게 하는 숫자는?", a: "다섯" },
-            { q: "고랑 개랑 부딪히면?", a: "소개팅" },
-            { q: "스님이 열 받을 때 먹는 음식은?", a: "중화요리" },
-            { q: "진주비빔밥보다 늦게 나온 비빔밥은?", a: "이번주비빔밥" },
-            { q: "꽃가게 주인이 가장 싫어하는 나라는?", a: "시드니" },
-            { q: "세상에서 가장 잔인한 비빔밥은?", a: "산채비빔밥" },
-            { q: "자가용의 반대말은?", a: "커요" },
-            { q: "김치와 케이크를 섞으면?", a: "버려야 함" },
-            { q: "사람이 사는 동안 가장 많이 하는 소리는?", a: "숨소리" },
-            { q: "세상에서 가장 야한 닭은?", a: "홀딱" },
-            { q: "가장 빨리 먹는 떡은?", a: "헐레벌떡" },
-            { q: "물고기 중에서 가장 학벌이 좋은 물고기는?", a: "고등어" },
-            { q: "바다에서 해도 되는 욕은?", a: "해수욕" },
-            { q: "전쟁에서 장군이 가장 받고 싶어 하는 복은?", a: "항복" },
-            { q: "창으로 찌를 때 하는 말은?", a: "창피해" },
-            { q: "이상한 사람들이 모여있는 곳은?", a: "치과" },
-            { q: "모든 소들이 밭에서 일하는데 놀고 있는 소는?", a: "깜찍이 소다" },
-            { q: "물 없는 곳에서도 할 수 있는 물놀이는?", a: "사물놀이" },
-            { q: "형제가 싸울 때 동생 편만 드는 곳은?", a: "형편없는 곳" },
-            { q: "흑인이 시험을 보면?", a: "검정고시" },
-            { q: "정삼각형의 동생 이름은?", a: "정삼각" },
-            { q: "해와 달중 해만 전문적으로 취재하는 사람은?", a: "해리포터" },
-            { q: "산부인과 의사가 가장 싫어하는 말은?", a: "무자식이 상팔자다" },
-            { q: "60명이 정원인 잠수함에 남자 30명 여자 29명이 탑승했는데 가라 앉은이유?", a: "잠수함이니깐" },
-            { q: "부산에서 가장 추운곳은?", a: "영도" },
-            { q: "가수 샤이니가 다니는 고등학교는?", a: "아미고" },
-            { q: "간짜장이 일반 짜장보다 비싼 이유는?", a: "간 때문이야" },
-            { q: "간첩이 동물원에 가면 찾는 새는?", a: "공작새" },
-            { q: "강아지의 생일을 영어 단어로 풀이하면?", a: "해피 버스데이 투 유" },
-            { q: "개성공단의 반대말은?", a: "고양이실패단" },
-            { q: "거꾸로 매달린 집에 수십개의 문이 있는 것은?", a: "벌집" },
-            { q: "거액의 돈을 빌려주는 섬은?", a: "대부도" },
-            { q: "거지가 빨간색 말을 타고 가는 것은?", a: "새빨간 거짓말" },
-            { q: "겨울에 설경이 아름다운 섬은?", a: "설운도" },
-            { q: "겨울왕국 엘사, 안나 자매가 다니는 고등학교는?", a: "렛잇고" },
-            { q: "고기 먹을 때마다 따라다니는 개는?", a: "이쑤시개" },
-            { q: "고시생하고 공무원들이 세상에서 제일 싫어하는 국은?", a: "미역국" },
-            { q: "고조할아버지부터 손자가 대를 이루어서 사는 산은?", a: "오대산" },
-            { q: "곰돌이 푸가 걷다가 넘어지면?", a: "쿵푸" },
-            { q: "군인들이 모여 사는 군은?", a: "군위군" },
-            { q: "군인들이 세상에서 제일 싫어하는 피아노는?", a: "영창피아노" },
-            { q: "기우제를 순 우리말로 하면?", a: "오라비" },
-            { q: "깨는 깨인데 먹지 못하는 깨는?", a: "주근깨" },
-            { q: "꼬마마법사 레미의 아들과 딸 이름은?", a: "아들레미 딸레미" },
-            { q: "꿀처럼 단 귤은?", a: "뀰" },
-            { q: "꿈을 이루고자 하는 사람이 해야 하는 일은?", a: "공부하는 일" },
-            { q: "나라 두개가 합쳐지면?", a: "콤비네이션" },
-            { q: "\"나한테 전화를 걸다\"를 두 글자로 하면?", a: "콜라" },
-            { q: "나무가 네 그루 있으면?", a: "목포" },
-            { q: "나무로 지은 아파트는?", a: "트리지움" },
-            { q: "나방을 영어로 못 쓰는 이유는?", a: "Moth니까" },
-            { q: "낙타의 엄마는 누구인가?", a: "늑대" },
-            { q: "날마다 분식회계가 이루어지는 곳은?", a: "분식집" },
-            { q: "낫 놓고 기역자도 모르는 사람은?", a: "외국인 관광객" },
-            { q: "내려올땐 느리고 올라갈땐 빠른것은?", a: "콧물" },
-            { q: "너를 사랑하는 대륙은?", a: "유럽" },
-            { q: "노루가 다니는 길은?", a: "노르웨이" },
-            { q: "놀부가 세상에서 제일 좋아하는 술은?", a: "심술" },
-            { q: "높은 곳에서 아이를 낳으면?", a: "하이에나" },
-            { q: "누런 빛깔이 나는 용을 세 글자로 하면?", a: "황인용" },
-            { q: "누워서 떡 먹기 보다 더 쉬운 것은?", a: "떡 먹고 눕기" },
-            { q: "니콜이 나이가 어리면?", a: "애니콜" },
-            { q: "다정함의 반대는?", a: "선택장애" },
-            { q: "닭이 스키니 바지를 입고 하는 말?", a: "꼬끼오" },
-            { q: "단골이 없는 사업자는?", a: "장의사" },
-            { q: "단칸방을 얻기 위해 이사를 다니는 사람은?", a: "이사도라 덩컨" },
-            { q: "담배가 목장에 간 이유는?", a: "말보로" },
-            { q: "대포가 많은 해수욕장은?", a: "다대포" },
-            { q: "대한민국 제일의 도시는?", a: "거창" },
-            { q: "대한민국은 원, 일본은 엔, 미국은 달러, 그렇다면 호주는?", a: "호주머니" },
-            { q: "더운 여름에는 옷을 잔뜩 껴입고 추운 겨울에 벗는 것은?", a: "나무" },
-            { q: "덜 뚱뚱한 사람들이 사는 동네는?", a: "반포동" },
-            { q: "도둑이 가장 좋아하는 아이스크림은?", a: "보석바" },
-            { q: "도둑의 아버지를 이르는 말은?", a: "장물아비" },
-            { q: "돈은 돈인데 혼인을 해야 생기는 돈은?", a: "사돈" },
-            { q: "돌은 돌인데 사람이 먹을 수 있는 돌은?", a: "인사돌" },
-            { q: "돼지가 술을 마시면?", a: "돈 주앙" },
-            { q: "땅이 반으로 갈라지면?", a: "반지" },
-            { q: "똥이 작별인사를 할 때 하는 말은?", a: "응~가~" },
-            { q: "뚱뚱한 사람들이 사는 동네는?", a: "개포동" },
-            { q: "때리기를 잘하기로 소문난 깡패는?", a: "펠레" },
-            { q: "말을 뒤로 타는 사람을 이르는 말은?", a: "마르셀 뒤샹" },
-            { q: "맞아야 사는 것은?", a: "팽이" },
-            { q: "머리에 뿔이 달리고, 꼬리가 열 개 달린 말은?", a: "거짓말" },
-            { q: "명중률이 제일 낮은 무기는?", a: "섬광탄" },
-            { q: "모자 매장 진열대 사이에 신발을 두면?", a: "캡사이신" },
-            { q: "몰라요를 거꾸로 뒤집으면?", a: "요라몰" },
-            { q: "못 사온다고 해놓고 사온 것은?", a: "못" },
-            { q: "무가 자기소개를 할 때 하는 말은?", a: "나무" },
-            { q: "무가 짜릿짜릿하면?", a: "무전기" },
-            { q: "물로 만든 고양이는?", a: "물로켓" },
-            { q: "미국하고 영국 사람들이 가장 많이 버리는 숫자는?", a: "8" },
-            { q: "미녀들이 모여 사는 섬은?", a: "진도" },
-            { q: "미쓰에이가 먹는 쌀은?", a: "유돈노미" },
-            { q: "밀로의 비너스는 팔이 없다. 어느 쪽 팔이 없을까?", a: "두 팔이 모두 없다" },
-            { q: "바다 중에 가장 더운 바다는?", a: "열바다" },
-            { q: "방귀를 잘 꾸는 사람을 부르는 말은?", a: "까스명수" },
-            { q: "배 위에 세 마리의 용이 있으면?", a: "배삼룡" },
-            { q: "백 가지 과일이 죽기 직전을 다른 말로?", a: "백과사전" },
-            { q: "백 마리의 소가 모여 사는 산은?", a: "소백산" },
-            { q: "세상에서 제일 투명한 집은?", a: "비닐하우스" },
-            { q: "뱀과 벌이 없는 달은?", a: "11월" },
-            { q: "뱀이 불탔다를 네 글자로 말하면?", a: "뱀파이어" },
-            { q: "별은 별인데 세상에서 제일 서운한 별은?", a: "이별" },
-            { q: "보내기 싫을 때 할 수 있는 방법은?", a: "가위나 주먹을 낸다" },
-            { q: "보리하고 돌멩이 영어 단어로 풀이하면?", a: "맥스톤" },
-            { q: "보리하고 사자를 영어 단어로 풀이하면?", a: "맥 라이언" },
-            { q: "부모 없이 태어나는 아이는?", a: "인형" },
-            { q: "북 중에서 가장 큰 북은?", a: "동서남북" },
-            { q: "붉은 길에 동전 하나가 떨어져 있으면?", a: "홍길동전" },
-            { q: "비의 친구가 비한테 사우디를 아냐고 물어보면?", a: "사우디아라비아" },
-            { q: "비가 얼어죽으면?", a: "비동사" },
-            { q: "비가 올 때 하는 욕은?", a: "BYC" },
-            { q: "비버가 노래를 부르면?", a: "저스틴 비버" },
-            { q: "빌 게이츠가 노래를 부를때 어떻게 부를까요?", a: "마이크로 소프트하게" },
-            { q: "빌 게이츠가 탐을 싫어해서 만든 프로그램은?", a: "탐색기" },
-            { q: "빨간색으로 도색된 차는?", a: "홍차" },
-            { q: "사람이 안죽는 산맥은?", a: "안데스산맥" },
-            { q: "사업자들이 세상에서 제일 싫어하는 경기는?", a: "불경기" },
-            { q: "산타가 제일 좋아하는 차는?", a: "투싼" },
-            { q: "아기가 잠을 자고 있다를 네 글자로 하면?", a: "아기자기" },
-            { q: "아들과 엄마가 택견을 하면?", a: "모자이크" },
-            { q: "아침에는 네 발로 낮에는 두 발로 저녁에는 세 발로 걷는 것은?", a: "사람" },
-            { q: "아마존엔 누가 살까?", a: "아마 존" },
-            { q: "아몬드가 죽었다를 다섯 글자로 하면?", a: "다이아몬드" }
+            { q: "말은 말인데 타지 못하는 말은?", a: "거짓말" }
         ];
 
         let currentQuiz = {};
-        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v54')) || [];
-        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v54')) || {};
+
+        // 🔥 Firebase 실시간 연동 초기화 함수
+        window.initFirebaseSync = function() {
+            if (!window.db) return;
+
+            // 1. 준비물 실시간 동기화
+            const supRef = window.dbRef(window.db, 'hhhApp/supplies');
+            window.dbOnValue(supRef, (snapshot) => {
+                const data = snapshot.val();
+                suppliesList = data ? Object.values(data) : [];
+                renderSupplies();
+            });
+
+            // 2. 일정(할 일) 실시간 동기화
+            const taskRef = window.dbRef(window.db, 'hhhApp/tasks');
+            window.dbOnValue(taskRef, (snapshot) => {
+                const data = snapshot.val();
+                userChecklists = data || {};
+                renderTasks();
+                renderCalendar();
+            });
+
+            // 3. 뽑기 상태 실시간 동기화
+            const gachaRef = window.dbRef(window.db, 'hhhApp/gacha');
+            window.dbOnValue(gachaRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    gachaState = data;
+                }
+                checkGachaResetStatus();
+            });
+
+            // 4. 프로필 정보 동기화
+            const profileRef = window.dbRef(window.db, 'hhhApp/profile');
+            window.dbOnValue(profileRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    userProfile = data;
+                    loadProfileToSetting();
+                    renderFortune();
+                }
+            });
+        };
+
+        // 데이터를 파이어베이스에 저장하는 함수
+        function saveToFirebase(path, data) {
+            if (!window.db) return;
+            const dbRefTarget = window.dbRef(window.db, `hhhApp/${path}`);
+            window.dbSet(dbRefTarget, data).catch((err) => {
+                console.error("데이터 저장 실패:", err);
+            });
+        }
 
         function saveData() {
-            localStorage.setItem('hhh_supplies_v54', JSON.stringify(suppliesList));
-            localStorage.setItem('hhh_tasks_v54', JSON.stringify(userChecklists));
-            localStorage.setItem('hhh_profile_v54', JSON.stringify(userProfile));
-            localStorage.setItem('hhh_gacha_v54', JSON.stringify(gachaState));
+            // 개별 항목 변경 시 Firebase에 반영
+            saveToFirebase('supplies', suppliesList.reduce((acc, cur) => { acc[cur.id] = cur; return acc; }, {}));
+            saveToFirebase('tasks', userChecklists);
+            saveToFirebase('profile', userProfile);
+            saveToFirebase('gacha', gachaState);
         }
+
+        window.onload = function() {
+            const mName = todayObj.toLocaleString('ko-KR', { month: 'long' });
+            const dNum = todayObj.getDate();
+            const wName = todayObj.toLocaleString('ko-KR', { weekday: 'short' });
+            document.getElementById('home-date-display').innerText = `${mName} ${dNum}일 (${wName}) - 오늘`;
+            document.getElementById('sup-input-date').value = selectedDate;
+
+            initRandomQuote();
+            initRandomQuiz();
+            refreshLocationAndWeather();
+            renderFortune();
+        };
 
         function openApp(appScheme, webUrl) {
             const start = Date.now();
@@ -968,7 +715,7 @@
         }
 
         function exportData() {
-            const backupData = { supplies: suppliesList, tasks: userChecklists, profile: userProfile, version: "v5.4", backupDate: new Date().toISOString() };
+            const backupData = { supplies: suppliesList, tasks: userChecklists, profile: userProfile, version: "v5.4" };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
@@ -978,61 +725,14 @@
             downloadAnchor.remove();
         }
 
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (parsed.supplies && parsed.tasks) {
-                        suppliesList = parsed.supplies;
-                        userChecklists = parsed.tasks;
-                        if(parsed.profile) userProfile = parsed.profile;
-                        saveData();
-                        loadProfileToSetting();
-                        renderSupplies();
-                        renderCalendar();
-                        renderTasks();
-                        alert("데이터가 성공적으로 복원되었습니다! ✨");
-                        switchTab('home');
-                    } else { alert("올바른 백업 파일 형식이 아닙니다."); }
-                } catch (err) { alert("파일을 읽는 중 오류가 발생했습니다."); }
-            };
-            reader.readAsText(file);
-        }
-
         function getAutoEmojiText(text) {
             const lower = text.toLowerCase();
-            if (lower.includes('우산') || lower.includes('비')) return text.includes('☔') ? text : `${text} ☔`;
-            if (lower.includes('마스크') || lower.includes('황사')) return text.includes('😷') ? text : `${text} 😷`;
-            if (lower.includes('지갑') || lower.includes('카드')) return text.includes('👛') ? text : `${text} 👛`;
-            if (lower.includes('폰') || lower.includes('핸드폰')) return text.includes('📱') ? text : `${text} 📱`;
-            if (lower.includes('이어폰') || lower.includes('에어팟')) return text.includes('🎧') ? text : `${text} 🎧`;
-            if (lower.includes('패딩') || lower.includes('코트')) return text.includes('🧥') ? text : `${text} 🧥`;
-            if (lower.includes('노트북') || lower.includes('맥북')) return text.includes('💻') ? text : `${text} 💻`;
-            if (lower.includes('충전기') || lower.includes('배터리')) return text.includes('🔋') ? text : `${text} 🔋`;
+            if (lower.includes('우산') || lower.includes('비')) return `${text} ☔`;
+            if (lower.includes('마스크')) return `${text} 😷`;
+            if (lower.includes('지갑') || lower.includes('카드')) return `${text} 👛`;
+            if (lower.includes('노트북')) return `${text} 💻`;
             return text;
         }
-
-        window.onload = function() {
-            const mName = todayObj.toLocaleString('ko-KR', { month: 'long' });
-            const dNum = todayObj.getDate();
-            const wName = todayObj.toLocaleString('ko-KR', { weekday: 'short' });
-            document.getElementById('home-date-display').innerText = `${mName} ${dNum}일 (${wName}) - 오늘`;
-            
-            document.getElementById('sup-input-date').value = selectedDate;
-
-            loadProfileToSetting();
-            renderSupplies();
-            renderCalendar();
-            renderTasks();
-            initRandomQuote();
-            initRandomQuiz();
-            refreshLocationAndWeather();
-            checkGachaResetStatus();
-            renderFortune();
-        };
 
         function loadProfileToSetting() {
             document.getElementById('profile-birthdate').value = userProfile.birthdate;
@@ -1046,23 +746,20 @@
             userProfile.birthtime = document.getElementById('profile-birthtime').value;
             saveData();
             renderFortune();
-            alert("프로필이 성공적으로 저장되었습니다! 🔮 운세 탭에서 확인해보세요.");
+            alert("프로필이 저장되었습니다! (두 사용자에게 공유됨) 🔮");
             switchTab('fortune');
         }
 
-        // --- 새벽 6시 기준 뽑기 초기화 및 실행 로직 ---
         function getResetBaseTimestamp() {
             const now = new Date();
             const base = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0);
-            if (now.getTime() < base.getTime()) {
-                base.setDate(base.getDate() - 1);
-            }
+            if (now.getTime() < base.getTime()) base.setDate(base.getDate() - 1);
             return base.getTime();
         }
 
         function checkGachaResetStatus() {
             const resetBase = getResetBaseTimestamp();
-            if (gachaState.lastDrawnTimestamp < resetBase) {
+            if (gachaState.lastDrawnTimestamp < resetBase && gachaState.prize) {
                 gachaState.prize = null;
                 saveData();
             }
@@ -1077,35 +774,17 @@
             let prize = {};
             let tierKey = 8;
 
-            if (rand < 0.1) {
-                prize = { title: "🏆 1등 당첨!", desc: "소원권 (이걸 뽑았다고 ?)" };
-                tierKey = 1;
-            } else if (rand < 1.1) {
-                prize = { title: "🎬 2등 당첨!", desc: "챌린지 찍어주세요 !" };
-                tierKey = 2;
-            } else if (rand < 3.1) {
-                prize = { title: "🚗 3등 당첨!", desc: "덕소까지 데려다주세요 !" };
-                tierKey = 3;
-            } else if (rand < 6.1) {
-                prize = { title: "💌 4등 당첨!", desc: "손편지 써주세요" };
-                tierKey = 4;
-            } else if (rand < 10.1) {
-                prize = { title: "📖 5등 당첨!", desc: "잘 때 책 읽어주세요 !" };
-                tierKey = 5;
-            } else if (rand < 15.1) {
-                prize = { title: "🍪 6등 당첨!", desc: "맛있는 간식 사다주세요!" };
-                tierKey = 6;
-            } else if (rand < 23.1) {
-                prize = { title: "☕ 7등 당첨!", desc: "커피 사주세요 ! (기프티콘)" };
-                tierKey = 7;
-            } else {
-                prize = { title: "🥲 8등 (꽝)", desc: "다음 기회에.." };
-                tierKey = 8;
-            }
+            if (rand < 0.1) { prize = { title: "🏆 1등 당첨!", desc: "소원권 (이걸 뽑았다고 ?)" }; tierKey = 1; }
+            else if (rand < 1.1) { prize = { title: "🎬 2등 당첨!", desc: "챌린지 찍어주세요 !" }; tierKey = 2; }
+            else if (rand < 3.1) { prize = { title: "🚗 3등 당첨!", desc: "덕소까지 데려다주세요 !" }; tierKey = 3; }
+            else if (rand < 6.1) { prize = { title: "💌 4등 당첨!", desc: "손편지 써주세요" }; tierKey = 4; }
+            else if (rand < 10.1) { prize = { title: "📖 5등 당첨!", desc: "잘 때 책 읽어주세요 !" }; tierKey = 5; }
+            else if (rand < 15.1) { prize = { title: "🍪 6등 당첨!", desc: "맛있는 간식 사다주세요!" }; tierKey = 6; }
+            else if (rand < 23.1) { prize = { title: "☕ 7등 당첨!", desc: "커피 사주세요 ! (기프티콘)" }; tierKey = 7; }
+            else { prize = { title: "🥲 8등 (꽝)", desc: "다음 기회에.." }; tierKey = 8; }
 
             gachaState.prize = prize;
             gachaState.lastDrawnTimestamp = Date.now();
-            
             if (!gachaState.counts) gachaState.counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
             gachaState.counts[tierKey] = (gachaState.counts[tierKey] || 0) + 1;
 
@@ -1116,24 +795,20 @@
         function renderGachaUI() {
             const box = document.getElementById('gacha-box');
             const resultContainer = document.getElementById('gacha-result-container');
-            const prizeTitle = document.getElementById('gacha-prize-title');
-            const prizeDesc = document.getElementById('gacha-prize-desc');
             const btnLabel = document.getElementById('gacha-btn-label');
 
             if (!gachaState.counts) gachaState.counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
             for (let i = 1; i <= 8; i++) {
                 const countEl = document.getElementById(`count-tier-${i}`);
-                if (countEl) {
-                    countEl.innerText = `${gachaState.counts[i] || 0}회`;
-                }
+                if (countEl) countEl.innerText = `${gachaState.counts[i] || 0}회`;
             }
 
             if (gachaState.prize) {
                 box.classList.add('opacity-80', 'pointer-events-none');
                 btnLabel.innerText = "오늘 뽑기 완료 ✨";
                 resultContainer.classList.remove('hidden');
-                prizeTitle.innerText = gachaState.prize.title;
-                prizeDesc.innerText = gachaState.prize.desc;
+                document.getElementById('gacha-prize-title').innerText = gachaState.prize.title;
+                document.getElementById('gacha-prize-desc').innerText = gachaState.prize.desc;
             } else {
                 box.classList.remove('opacity-80', 'pointer-events-none');
                 btnLabel.innerText = "쪽지 뽑기 오픈!";
@@ -1141,216 +816,60 @@
             }
         }
 
-        // --- 실시간 운세 생성 알고리즘 ---
         function renderFortune() {
             document.getElementById('fortune-user-info').innerText = `${userProfile.zodiac} · 생일 ${userProfile.birthdate}`;
-            
             const dateStr = `${todayObj.getFullYear()}${todayObj.getMonth() + 1}${todayObj.getDate()}`;
             const seed = parseInt(dateStr) + parseInt(userProfile.birthdate.replace(/-/g, '')) + userProfile.zodiac.length;
             
-            const generals = [
-                "오늘은 모든 일에 활력이 넘치고 주변의 도움을 받을 수 있는 형통한 하루입니다.",
-                "작은 오해가 생길 수 있으나 진심어린 소통으로 큰 성과를 거두는 날입니다.",
-                "뜻밖의 귀인이 나타나 당신의 고민을 시원하게 해결해 주는 행운의 하루입니다.",
-                "급할수록 돌아가라는 말이 있듯이 조급함을 버리고 차분히 내실을 다지세요.",
-                "새로운 도전을 하기에 매우 긍정적인 에너지 가득한 하루입니다."
-            ];
-
-            const wealths = [
-                "안정적인 재물 흐름, 소소한 득템이나 뜻밖의 수입이 기대됩니다.",
-                "불필요한 지출을 주의하세요. 충동구매만 막는다면 평온합니다.",
-                "투자나 금전 거래는 오늘 하루 미루는 것이 현명합니다.",
-                "노력한 만큼의 보상과 금전적 성취가 따르는 기분 좋은 하루입니다."
-            ];
-
-            const loves = [
-                "주변 사람들과의 관계가 깊어지고 따뜻한 공감을 나누는 하루입니다.",
-                "사소한 말실수를 조심하세요. 상대방의 입장을 먼저 배려해야 합니다.",
-                "새로운 인연과의 설레는 만남이나 기존 관계의 돈독함이 돋보입니다."
-            ];
-
-            const colors = ["인디고 블루", "로얄 퍼플", "에메랄드 그린", "선샤인 옐로우", "로즈 핑크", "클래식 화이트"];
-            const nums = ["3, 7, 9", "1, 4, 8", "2, 5, 6", "0, 4, 9"];
-            const dirs = ["동쪽 (행운의 방향)", "서쪽 (만남의 장소)", "남쪽 (귀인의 방향)", "북쪽 (안정의 방향)"];
+            const generals = ["오늘은 모든 일에 활력이 넘치고 주변의 도움을 받을 수 있는 형통한 하루입니다.", "작은 오해가 생길 수 있으나 진심어린 소통으로 큰 성과를 거두는 날입니다.", "뜻밖의 귀인이 나타나 당신의 고민을 시원하게 해결해 주는 행운의 하루입니다."];
+            const wealths = ["안정적인 재물 흐름, 소소한 득템이나 뜻밖의 수입이 기대됩니다.", "불필요한 지출을 주의하세요. 충동구매만 막는다면 평온합니다."];
+            const loves = ["주변 사람들과의 관계가 깊어지고 따뜻한 공감을 나누는 하루입니다.", "사소한 말실수를 조심하세요."];
 
             document.getElementById('fortune-general').innerText = generals[seed % generals.length];
             document.getElementById('fortune-wealth').innerText = wealths[seed % wealths.length];
             document.getElementById('fortune-love').innerText = loves[seed % loves.length];
-            document.getElementById('luck-color').innerText = colors[seed % colors.length];
-            document.getElementById('luck-num').innerText = nums[seed % nums.length];
-            document.getElementById('luck-dir').innerText = dirs[seed % dirs.length];
         }
 
         function initRandomQuote() {
-            const randomIndex = Math.floor(Math.random() * quotesPool.length);
-            document.getElementById('random-quote-box').innerText = quotesPool[randomIndex];
+            document.getElementById('random-quote-box').innerText = quotesPool[Math.floor(Math.random() * quotesPool.length)];
         }
 
         function initRandomQuiz() {
-            const randomIndex = Math.floor(Math.random() * nonsenseQuizzes.length);
-            currentQuiz = nonsenseQuizzes[randomIndex];
+            currentQuiz = nonsenseQuizzes[Math.floor(Math.random() * nonsenseQuizzes.length)];
             document.getElementById('quiz-question').innerText = `${currentQuiz.q} (정답은 터치)`;
             document.getElementById('quiz-answer-text').innerText = currentQuiz.a;
-            document.getElementById('quiz-answer-box').classList.add('hidden');
-            document.getElementById('quiz-hint-label').innerText = "(정답은 터치)";
         }
 
         function toggleQuizAnswer() {
             const ansBox = document.getElementById('quiz-answer-box');
-            const hintLabel = document.getElementById('quiz-hint-label');
-            if (ansBox.classList.contains('hidden')) {
-                ansBox.classList.remove('hidden');
-                hintLabel.innerText = "✨ 정답 확인 완료";
-            } else {
-                ansBox.classList.add('hidden');
-                hintLabel.innerText = "(정답은 터치)";
-            }
+            ansBox.classList.toggle('hidden');
         }
 
         function getWeatherDetails(code) {
             if (code === 0) return { desc: '맑음', icon: '☀️', type: 'sunny' };
             if ([1, 2].includes(code)) return { desc: '구름조금', icon: '⛅', type: 'sunny' };
             if (code === 3) return { desc: '구름많음', icon: '☁️', type: 'cloudy' };
-            if ([45, 48].includes(code)) return { desc: '안개', icon: '🌫️', type: 'cloudy' };
-            if ([51, 53, 55, 56, 57].includes(code)) return { desc: '이슬비', icon: '🌦️', type: 'rain' };
-            if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { desc: '비', icon: '🌧️', type: 'rain' };
-            if ([71, 73, 75, 77, 85, 86].includes(code)) return { desc: '눈', icon: '❄️', type: 'cloudy' };
-            if ([95, 96, 99].includes(code)) return { desc: '천둥번개', icon: '⚡', type: 'rain' };
+            if ([51, 61, 63, 65, 80].includes(code)) return { desc: '비', icon: '🌧️', type: 'rain' };
             return { desc: '흐림', icon: '☁️', type: 'cloudy' };
         }
 
         function refreshLocationAndWeather() {
-            const iconEl = document.getElementById('refresh-icon');
-            iconEl.classList.add('spinning');
-            document.getElementById('location-label').innerText = "위치 및 날씨 탐색 중...";
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        await fetchWeatherData(lat, lon);
-                        iconEl.classList.remove('spinning');
-                    },
-                    (error) => {
-                        fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
-                        iconEl.classList.remove('spinning');
-                    },
-                    { timeout: 10000, enableHighAccuracy: true }
-                );
-            } else {
-                fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
-                iconEl.classList.remove('spinning');
-            }
+            fetchWeatherData(37.201, 127.106, "화성시 영천동 (기본 위치)");
         }
 
-        async function fetchWeatherData(lat, lon, fallbackName = null) {
-            let fullLoc = fallbackName;
-            
-            if (!fullLoc) {
-                try {
-                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=ko`);
-                    const geoData = await geoRes.json();
-                    if (geoData && geoData.address) {
-                        const addr = geoData.address;
-                        const city = addr.city || addr.county || addr.state || '현재 위치';
-                        const district = addr.borough || addr.suburb || addr.town || addr.village || '';
-                        fullLoc = district ? `${city} ${district}` : city;
-                    } else {
-                        fullLoc = "현재 위치";
-                    }
-                } catch (e) {
-                    fullLoc = "현재 위치";
-                }
-            }
-
+        async function fetchWeatherData(lat, lon, fullLoc) {
             document.getElementById('location-label').innerText = fullLoc;
-
             try {
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability,uv_index,wind_speed_10m&timezone=auto`);
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&timezone=auto`);
                 const weatherData = await weatherRes.json();
-
                 if (weatherData && weatherData.current) {
                     const cur = weatherData.current;
                     const curWeather = getWeatherDetails(cur.weather_code);
-                    const currentHour = new Date().getHours();
-                    const curUvIndex = (weatherData.hourly && weatherData.hourly.uv_index) ? weatherData.hourly.uv_index[currentHour] : 3.0;
-                    
                     document.getElementById('weather-temp').innerText = `${Math.round(cur.temperature_2m)}°`;
-                    document.getElementById('weather-feels').innerText = `체감 ${Math.round(cur.apparent_temperature || cur.temperature_2m)}°C`;
                     document.getElementById('weather-desc').innerText = curWeather.desc;
-                    document.getElementById('weather-icon-box').innerText = curWeather.icon;
-                    document.getElementById('val-rain').innerText = `${cur.relative_humidity_2m}%`;
-                    document.getElementById('val-wind').innerText = `${Math.round(cur.wind_speed_10m)}km/h`;
-                    document.getElementById('val-uv').innerText = `${cur.precipitation || 0}mm`;
-                    document.getElementById('val-uv-index').innerText = `${curUvIndex !== undefined ? curUvIndex : '보통'} (UV)`;
-                    document.getElementById('weather-badge').innerText = `${curWeather.desc} (실시간 연동)`;
-                    document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 기상청 API 연동 완료`;
-                    document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 ${Math.round(cur.temperature_2m)}°C, 날씨는 ${curWeather.desc}입니다. 오늘도 활기찬 하루 보내세요! ✨`;
-
-                    const card = document.getElementById('weather-card-container');
-                    card.classList.remove('weather-rain', 'weather-sunny', 'weather-cloudy');
-                    card.classList.add(curWeather.type === 'sunny' ? 'weather-sunny' : (curWeather.type === 'rain' ? 'weather-rain' : 'weather-cloudy'));
+                    document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 ${Math.round(cur.temperature_2m)}°C, ${curWeather.desc}입니다. ✨`;
                 }
-
-                // --- 🌟 3시간 내 날씨 특이점 감지 및 팝업 알림 로직 ---
-                if (weatherData && weatherData.hourly) {
-                    const hourly = weatherData.hourly;
-                    const nowIdx = new Date().getHours();
-                    let alertFound = false;
-
-                    // 앞으로 3시간 이내(현재 시간부터 +3시간) 검사
-                    for (let i = 1; i <= 3; i++) {
-                        const targetIdx = nowIdx + i;
-                        if (targetIdx < hourly.time.length) {
-                            const rainProb = hourly.precipitation_probability ? hourly.precipitation_probability[targetIdx] : 0;
-                            const windSpeed = hourly.wind_speed_10m ? hourly.wind_speed_10m[targetIdx] : 0;
-                            const uvVal = hourly.uv_index ? hourly.uv_index[targetIdx] : 0;
-                            const wCode = hourly.weather_code[targetIdx];
-
-                            // 1. 비/눈 특이점 감지 (강수 확률 60% 이상 또는 비/눈 웨더코드)
-                            if (rainProb >= 60 || [51,53,55,61,63,65,71,73,75,80,81,82].includes(wCode)) {
-                                showWeatherAlert(`☔ ${i}시간 후에 비(눈)가 올 예정이에요! 우산 챙기세요!`, "🌧️");
-                                alertFound = true;
-                                break;
-                            }
-                            // 2. 강풍 특이점 감지 (풍속 35km/h 이상)
-                            if (windSpeed >= 35) {
-                                showWeatherAlert(`💨 ${i}시간 후에 강풍이 불 예정이에요! 시설물에 유의하세요!`, "🌬️");
-                                alertFound = true;
-                                break;
-                            }
-                            // 3. 자외선 매우 높음 감지 (UV 8 이상)
-                            if (uvVal >= 8) {
-                                showWeatherAlert(`☀️ 자외선 지수가 매우 높아요(${uvVal})! 선크림을 바르세요!`, "🧴");
-                                alertFound = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!alertFound) {
-                        document.getElementById('weather-alert-banner').classList.add('hidden');
-                    }
-                }
-
-            } catch (err) {
-                console.error("날씨 데이터를 불러오지 못했습니다.", err);
-            }
-        }
-
-        function showWeatherAlert(msg, iconEmoji) {
-            const banner = document.getElementById('weather-alert-banner');
-            const textEl = document.getElementById('weather-alert-text');
-            const iconEl = document.getElementById('alert-icon');
-            
-            textEl.innerText = msg;
-            iconEl.innerText = iconEmoji;
-            banner.classList.remove('hidden');
-        }
-
-        function dismissWeatherAlert() {
-            document.getElementById('weather-alert-banner').classList.add('hidden');
+            } catch (err) { console.error(err); }
         }
 
         function switchTab(tab) {
@@ -1359,11 +878,7 @@
                 document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
-                    if (t === tab) {
-                        navBtn.className = 'flex flex-col items-center gap-1 text-indigo-600 scale-105 font-bold transition-all cursor-pointer';
-                    } else {
-                        navBtn.className = 'flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer';
-                    }
+                    navBtn.className = t === tab ? 'flex flex-col items-center gap-1 text-indigo-600 scale-105 font-bold transition-all cursor-pointer' : 'flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer';
                 }
             });
             if (tab === 'gacha') checkGachaResetStatus();
@@ -1373,7 +888,6 @@
             homeSegment = seg;
             document.getElementById('home-checklist-view').classList.toggle('hidden', seg !== 'checklist');
             document.getElementById('home-tasks-view').classList.toggle('hidden', seg !== 'tasks');
-            
             document.getElementById('seg-btn-checklist').className = `flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${seg === 'checklist' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
             document.getElementById('seg-btn-tasks').className = `flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${seg === 'tasks' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
         }
@@ -1396,23 +910,20 @@
             textInput.value = '';
             essentialInput.checked = false;
             saveData();
-            renderSupplies();
         }
 
         function deleteSupply(id) {
             suppliesList = suppliesList.filter(s => s.id !== id);
             saveData();
-            renderSupplies();
         }
 
         function renderSupplies() {
             const homeContainer = document.getElementById('home-supplies-container');
             const todaySupplies = suppliesList.filter(s => s.isEssential || s.date === selectedDate);
 
-            if (todaySupplies.length === 0) {
-                homeContainer.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-3 bg-slate-50 rounded-xl">오늘 등록된 준비물이 없습니다.</p>`;
-            } else {
-                homeContainer.innerHTML = todaySupplies.map(s => `
+            homeContainer.innerHTML = todaySupplies.length === 0 ? 
+                `<p class="text-[11px] text-slate-400 text-center py-3 bg-slate-50 rounded-xl">오늘 등록된 준비물이 없습니다.</p>` :
+                todaySupplies.map(s => `
                     <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             ${s.isEssential ? '<span class="text-[11px] text-amber-500 font-bold">⭐ [필수]</span>' : '<span class="text-[11px] text-indigo-500 font-bold">📌 [오늘]</span>'}
@@ -1421,13 +932,11 @@
                         <span class="text-[10px] text-slate-400 font-medium">${s.date}</span>
                     </div>
                 `).join('');
-            }
 
             const allContainer = document.getElementById('all-supplies-list');
-            if (suppliesList.length === 0) {
-                allContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">등록된 준비물이 없습니다.</p>`;
-            } else {
-                allContainer.innerHTML = suppliesList.map(s => `
+            allContainer.innerHTML = suppliesList.length === 0 ?
+                `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-2xl">등록된 준비물이 없습니다.</p>` :
+                suppliesList.map(s => `
                     <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
                         <div>
                             <div class="flex items-center gap-1.5">
@@ -1439,14 +948,12 @@
                         <button onclick="deleteSupply(${s.id})" class="text-xs text-rose-400 hover:text-rose-600 p-1.5 cursor-pointer">✕</button>
                     </div>
                 `).join('');
-            }
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             const pickerMonthStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}`;
-            const monthPickerEl = document.getElementById('calendar-month-picker');
-            if (monthPickerEl) monthPickerEl.value = pickerMonthStr;
+            document.getElementById('calendar-month-picker').value = pickerMonthStr;
 
             const firstDay = new Date(calYear, calMonth, 1).getDay();
             const lastDate = new Date(calYear, calMonth + 1, 0).getDate();
@@ -1455,20 +962,13 @@
             for (let i = 0; i < firstDay; i++) { html += `<div></div>`; }
 
             for (let d = 1; d <= lastDate; d++) {
-                const dayOfWeek = (firstDay + d - 1) % 7;
                 const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const isSelected = dateStr === selectedDate;
-                const holidayName = publicHolidays2026[dateStr];
                 const hasTask = userChecklists[dateStr] && userChecklists[dateStr].length > 0;
 
-                let textColor = 'text-slate-700';
-                if (dayOfWeek === 0 || holidayName) { textColor = 'text-rose-500 font-bold'; }
-                else if (dayOfWeek === 6) { textColor = 'text-blue-500 font-bold'; }
-
                 html += `
-                    <button onclick="selectDate('${dateStr}')" class="py-1.5 px-1 rounded-xl text-xs flex flex-col items-center justify-center transition-all cursor-pointer relative ${isSelected ? 'bg-indigo-600 text-white !text-white font-bold shadow-sm scale-105' : 'hover:bg-slate-100 ' + textColor}" title="${holidayName || ''}">
+                    <button onclick="selectDate('${dateStr}')" class="py-1.5 px-1 rounded-xl text-xs flex flex-col items-center justify-center transition-all cursor-pointer relative ${isSelected ? 'bg-indigo-600 text-white font-bold shadow-sm scale-105' : 'hover:bg-slate-100 text-slate-700'}">
                         <span>${d}</span>
-                        ${holidayName ? `<span class="text-[8px] text-rose-500 font-semibold scale-90 truncate max-w-full">${holidayName}</span>` : ''}
                         ${hasTask ? `<span class="w-1 h-1 ${isSelected ? 'bg-white' : 'bg-indigo-500'} rounded-full mt-0.5"></span>` : ''}
                     </button>
                 `;
@@ -1477,9 +977,7 @@
         }
 
         function handleMonthPickerChange(e) {
-            const val = e.target.value;
-            if (!val) return;
-            const parts = val.split('-');
+            const parts = e.target.value.split('-');
             calYear = parseInt(parts[0], 10);
             calMonth = parseInt(parts[1], 10) - 1;
             renderCalendar();
@@ -1496,7 +994,7 @@
             selectedDate = dateStr;
             const [y, m, d] = dateStr.split('-');
             document.getElementById('home-date-display').innerText = `${parseInt(m)}월 ${parseInt(d)}일`;
-            document.getElementById('selected-date-todo-title').innerText = `📌 ${parseInt(m)}월 ${parseInt(d)}일 일정 관리`;
+            document.getElementById('selected-date-todo-title').innerText = `📌 ${parseInt(m)}월 ${parseInt(d)}일 일정 관리 (공유)`;
             renderCalendar();
             renderSupplies();
             renderTasks();
@@ -1508,15 +1006,11 @@
             const timeInput = document.getElementById('task-input-time');
 
             if (!textInput.value.trim()) return;
-
-            if (!userChecklists[selectedDate]) { userChecklists[selectedDate] = []; }
+            if (!userChecklists[selectedDate]) userChecklists[selectedDate] = [];
 
             userChecklists[selectedDate].push({ id: Date.now(), text: textInput.value.trim(), time: timeInput.value || '12:00', completed: false });
-
             textInput.value = '';
             saveData();
-            renderTasks();
-            renderCalendar();
         }
 
         function toggleTask(id) {
@@ -1525,7 +1019,6 @@
                 if (task) task.completed = !task.completed;
                 saveData();
             }
-            renderTasks();
         }
 
         function deleteTask(id) {
@@ -1533,8 +1026,6 @@
                 userChecklists[selectedDate] = userChecklists[selectedDate].filter(t => t.id !== id);
                 saveData();
             }
-            renderTasks();
-            renderCalendar();
         }
 
         function renderTasks() {
@@ -1542,10 +1033,9 @@
             const todoContainer = document.getElementById('todo-list-container');
             const tasks = userChecklists[selectedDate] || [];
 
-            if (tasks.length === 0) {
-                homeContainer.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-3 bg-slate-50 rounded-xl">등록된 일정이 없습니다.</p>`;
-            } else {
-                homeContainer.innerHTML = tasks.map(t => `
+            homeContainer.innerHTML = tasks.length === 0 ? 
+                `<p class="text-[11px] text-slate-400 text-center py-3 bg-slate-50 rounded-xl">등록된 일정이 없습니다.</p>` :
+                tasks.map(t => `
                     <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center">
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] font-bold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-lg">${t.time}</span>
@@ -1554,12 +1044,10 @@
                         <span class="text-[11px]">${t.completed ? '✅' : '⏳'}</span>
                     </div>
                 `).join('');
-            }
 
-            if (tasks.length === 0) {
-                todoContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-xl">이 날짜에 등록된 일정이 없습니다.</p>`;
-            } else {
-                todoContainer.innerHTML = tasks.map(t => `
+            todoContainer.innerHTML = tasks.length === 0 ? 
+                `<p class="text-xs text-slate-400 text-center py-6 bg-slate-50 rounded-xl">이 날짜에 등록된 일정이 없습니다.</p>` :
+                tasks.map(t => `
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
                         <div class="flex items-center gap-2.5 cursor-pointer" onclick="toggleTask(${t.id})">
                             <input type="checkbox" ${t.completed ? 'checked' : ''} class="w-4 h-4 text-indigo-600 rounded">
@@ -1571,7 +1059,6 @@
                         <button onclick="deleteTask(${t.id})" class="text-xs text-rose-400 hover:text-rose-600 p-1 cursor-pointer">✕</button>
                     </div>
                 `).join('');
-            }
         }
     </script>
 </body>
