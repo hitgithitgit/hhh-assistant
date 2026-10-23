@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HHH 비서 앱</title>
+    <title>HHH Assistant 앱</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
@@ -15,11 +15,11 @@
         /* 날씨 이모지 기본 모션 */
         @keyframes weatherFloat {
             0%, 100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-5px) rotate(3deg); }
+            50% { transform: translateY(-6px) rotate(3deg); }
         }
         @keyframes weatherRain {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(3px); }
+            50% { transform: translateY(4px); }
         }
         @keyframes weatherSun {
             0%, 100% { transform: rotate(0deg) scale(1); }
@@ -48,7 +48,7 @@
             animation: rainDropFall 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
-        /* 2. 구름 많음 */
+        /* 2. 구름 많음 / 흐림 */
         .weather-scene.weather-cloudy {
             background: linear-gradient(135deg, #e4ebf5 0%, #d5e2f0 50%, #e2deee 100%) !important;
             border-color: #c4d5ea !important;
@@ -80,51 +80,8 @@
             border-radius: 50%; pointer-events: none; animation: sunPulseGlow 4s ease-in-out infinite;
         }
 
-        /* 4. 바람 불 때 */
-        .weather-scene.weather-windy {
-            background: linear-gradient(135deg, #d1fae5 0%, #c1f0e8 45%, #dbeafe 100%) !important;
-            border-color: #a7f3d0 !important;
-        }
-        @keyframes windStream {
-            0% { transform: translateX(-80px) translateY(0) scaleX(0.5); opacity: 0; }
-            30% { opacity: 0.9; transform: scaleX(1); }
-            70% { opacity: 0.9; }
-            100% { transform: translateX(340px) translateY(-15px) scaleX(0.7); opacity: 0; }
-        }
-        @keyframes leafFly {
-            0% { transform: translateX(-80px) translateY(0) rotate(0deg); opacity: 0; }
-            20% { opacity: 0.9; }
-            80% { opacity: 0.9; }
-            100% { transform: translateX(320px) translateY(-30px) rotate(360deg); opacity: 0; }
-        }
-        .wind-line-strong {
-            position: absolute; height: 4px; background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.75), transparent);
-            border-radius: 4px; pointer-events: none; animation: windStream 2.5s ease-in-out infinite;
-        }
-        .wind-leaf {
-            position: absolute; font-size: 14px; pointer-events: none;
-            animation: leafFly 2.2s ease-in-out infinite;
-        }
-
-        /* 5. 눈 내릴 때 */
-        .weather-scene.weather-snow {
-            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f3e8ff 100%) !important;
-            border-color: #c7d2fe !important;
-        }
-        @keyframes snowFallFlake {
-            0% { transform: translateY(-20px) translateX(0); opacity: 0; }
-            20% { opacity: 0.9; }
-            80% { opacity: 0.9; }
-            100% { transform: translateY(120px) translateX(15px); opacity: 0.2; }
-        }
-        .snow-flake {
-            position: absolute; top: -15px; border-radius: 50%; background-color: #ffffff;
-            box-shadow: 0 0 6px rgba(199, 210, 254, 0.9); pointer-events: none; user-select: none;
-            animation: snowFallFlake 3.8s linear infinite;
-        }
-
         @media (prefers-reduced-motion: reduce) {
-            .weather-emoji, .rain-drop, .cloud-item, .wind-line-strong, .snow-flake { animation: none !important; }
+            .weather-emoji, .rain-drop, .cloud-item { animation: none !important; }
         }
     </style>
 </head>
@@ -133,27 +90,23 @@
     <!-- 모바일 앱 프레임 -->
     <div class="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl flex flex-col h-screen sm:h-[880px] overflow-hidden relative">
         
-        <!-- 상단 헤더 -->
-        <div class="px-5 pt-4 pb-2 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
+        <!-- 상단 헤더 (요청하신 대로 수정 완료) -->
+        <div class="px-5 py-4 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">H</div>
-                <div>
-                    <div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                        HHH 비서 <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.5</span>
-                    </div>
-                    <p class="text-[10px] text-slate-400">스마트 일상 파트너</p>
+                <div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                    HHH Assistant <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">v3.5</span>
                 </div>
             </div>
-            <span class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full font-bold">실시간 연동</span>
         </div>
 
         <!-- 3시간 간격 24시간 날씨 탭 -->
         <div id="hourly-weather-panel" class="bg-slate-50 border-b border-slate-200 px-3 py-2.5 shrink-0">
             <div class="flex justify-between items-center mb-1.5 px-1">
-                <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                    ⏰ 24시간 시간별 날씨
+                <span id="hourly-panel-title" class="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+                    ⏰ 24시간 시간별 날씨 (현재 위치 확인 중...)
                 </span>
-                <span id="selected-hour-label" class="text-[10px] text-indigo-600 font-bold">09:00 기준 상세</span>
+                <span id="selected-hour-label" class="text-[10px] text-indigo-600 font-bold">18:00 기준 상세</span>
             </div>
             <div id="hourly-tabs" class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                 <!-- 동적 생성 -->
@@ -172,65 +125,68 @@
                         📅 <span id="home-date-display">10월 23일 (금) - 오늘</span>
                     </div>
                     <div class="flex items-center gap-1.5 text-xs bg-slate-100 px-3 py-1.5 rounded-full text-slate-600 font-medium">
-                        📍 <span>화성시 동탄동</span>
+                        📍 <span id="location-label">위치 탐색 중...</span>
                     </div>
                 </div>
 
                 <!-- 날씨 카드 -->
-                <div id="weather-card-container" class="weather-scene weather-rain p-5 rounded-3xl border shadow-sm relative transition-all duration-700">
+                <div id="weather-card-container" class="weather-scene weather-cloudy p-5 rounded-3xl border shadow-sm relative transition-all duration-700">
                     
                     <!-- 애니메이션 오버레이 레이어 -->
                     <div id="weather-fx-layer" class="absolute inset-0 pointer-events-none z-0"></div>
 
                     <div class="flex justify-between items-center mb-3 relative z-10">
-                        <span id="weather-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-xs">
-                            비 내림 (우산 필요)
+                        <span id="weather-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 shadow-xs">
+                            구름많음 (쾌적)
                         </span>
-                        <span id="weather-desc" class="text-sm font-bold text-slate-700">비 집중</span>
+                        <span id="weather-desc" class="text-sm font-bold text-slate-700">구름 많음</span>
                     </div>
 
                     <div class="flex justify-between items-center mb-4 relative z-10">
                         <div>
                             <div class="flex items-baseline gap-2">
-                                <span id="weather-temp" class="text-4xl font-extrabold tracking-tight">14°</span>
-                                <span id="weather-feels" class="text-xs bg-white/80 px-2 py-1 rounded-md font-medium text-slate-600">체감 12°C</span>
+                                <span id="weather-temp" class="text-4xl font-extrabold tracking-tight">19°</span>
+                                <span id="weather-feels" class="text-xs bg-white/80 px-2 py-1 rounded-md font-medium text-slate-600">체감 19°C</span>
                             </div>
-                            <p class="text-xs text-slate-600 mt-1 font-medium">화성시 동탄동 · 실시간 예보</p>
+                            <p id="weather-subtext" class="text-xs text-slate-600 mt-1 font-medium">현재 GPS 위치 · 실시간 날씨 연동</p>
                         </div>
-                        <div id="weather-icon-box" class="bg-white/90 p-3 rounded-2xl shadow-xs text-3xl">
-                            🌧️
+                        <div id="weather-icon-box" class="bg-white/90 p-3 rounded-2xl shadow-xs text-3xl weather-emoji">
+                            ☁️
                         </div>
                     </div>
 
                     <!-- 2x2 수치 카드 -->
                     <div class="grid grid-cols-2 gap-2 mt-2 relative z-10">
                         <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
-                            <span class="text-xs text-slate-500">강수확률</span>
-                            <span id="val-rain" class="text-xs font-bold text-blue-600">80%</span>
+                            <span class="text-xs text-slate-500">습도</span>
+                            <span id="val-rain" class="text-xs font-bold text-blue-600">69%</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
                             <span class="text-xs text-slate-500">바람</span>
-                            <span id="val-wind" class="text-xs font-bold text-slate-700">3m/s</span>
+                            <span id="val-wind" class="text-xs font-bold text-slate-700">2mph</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
                             <span class="text-xs text-slate-500">자외선</span>
-                            <span id="val-uv" class="text-xs font-bold text-amber-600">보통</span>
+                            <span id="val-uv" class="text-xs font-bold text-amber-600">좋음 (0)</span>
                         </div>
                         <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
                             <span class="text-xs text-slate-500">미세먼지</span>
-                            <span id="val-dust" class="text-xs font-bold text-rose-500">나쁨</span>
+                            <span id="val-dust" class="text-xs font-bold text-emerald-600">좋음</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 스마트 일상 브리핑 -->
+                <!-- 스마트 일상 브리핑 & 랜덤 명언 -->
                 <div class="bg-indigo-600 text-white p-4 rounded-2xl flex items-start gap-3 shadow-md">
                     <span class="text-xl">💡</span>
-                    <div class="text-xs">
+                    <div class="text-xs flex-1">
                         <span class="font-bold block mb-1 text-indigo-100">HHH 스마트 일상 브리핑</span>
-                        <p id="smart-briefing-text" class="leading-relaxed text-indigo-50">
-                            비 소식과 미세먼지가 겹쳤어요. 우산과 KF94 마스크를 꼭 챙기세요! ☔
+                        <p id="smart-briefing-text" class="leading-relaxed text-indigo-50 mb-2">
+                            현재 위치의 실시간 날씨 정보를 불러오고 있습니다... ✨
                         </p>
+                        <div id="random-quote-box" class="pt-2 border-t border-indigo-500/50 text-[11px] text-indigo-200 italic font-medium">
+                            <!-- 새로고침 시 무작위 명언 출력 -->
+                        </div>
                     </div>
                 </div>
 
@@ -264,7 +220,6 @@
 
             <!-- 2. 준비물 탭 -->
             <div id="tab-supplies" class="p-4 space-y-4 hidden">
-                <!-- 준비물 추가 폼 -->
                 <form onsubmit="handleAddSupply(event)" class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
                     <h4 class="text-xs font-bold text-slate-700">새로운 준비물 추가</h4>
                     <input type="text" id="sup-input-text" placeholder="예: 우산, 노트북, 마스크, 보조배터리..." required
@@ -289,7 +244,6 @@
                     </div>
                 </form>
 
-                <!-- 전체 준비물 목록 -->
                 <div class="space-y-2 pt-2">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">등록된 전체 준비물 목록</h4>
                     <div id="all-supplies-list" class="space-y-2">
@@ -302,22 +256,31 @@
             <div id="tab-todo" class="p-4 space-y-4 hidden">
                 <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
-                        <span id="cal-title" class="font-bold text-sm text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-xl">2026년 10월</span>
+                        <div class="flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-xl hover:bg-indigo-100 transition cursor-pointer">
+                            <span class="text-xs font-bold text-indigo-900">✨</span>
+                            <input type="month" id="calendar-month-picker" value="2026-10" onchange="handleMonthPickerChange(event)"
+                                class="bg-transparent text-xs font-bold text-indigo-700 focus:outline-none cursor-pointer">
+                        </div>
                         <div class="flex gap-1">
                             <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-xs font-bold cursor-pointer">◀</button>
                             <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg text-xs font-bold cursor-pointer">▶</button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-7 text-center text-xs font-bold text-slate-400 mb-1">
-                        <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                    <div class="grid grid-cols-7 text-center text-xs font-bold mb-1">
+                        <span class="text-rose-500">일</span>
+                        <span class="text-slate-400">월</span>
+                        <span class="text-slate-400">화</span>
+                        <span class="text-slate-400">수</span>
+                        <span class="text-slate-400">목</span>
+                        <span class="text-slate-400">금</span>
+                        <span class="text-blue-500">토</span>
                     </div>
                     <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-xs">
                         <!-- 동적 생성 -->
                     </div>
                 </div>
 
-                <!-- 할 일 추가 및 리스트 -->
                 <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
                     <div class="flex justify-between items-center">
                         <h3 id="selected-date-todo-title" class="text-xs font-bold text-slate-600 uppercase tracking-wider">
@@ -343,75 +306,265 @@
                 </div>
             </div>
 
+            <!-- 4. 심심해 탭 -->
+            <div id="tab-bored" class="p-4 space-y-4 hidden">
+                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-5 rounded-3xl text-white shadow-md space-y-2">
+                    <h3 class="text-base font-bold flex items-center gap-2">
+                        📺 실시간 숏폼 & 트렌드 허브
+                    </h3>
+                    <p class="text-xs text-purple-100 leading-relaxed">
+                        심심할 때 터치 한 번으로 최신 릴스와 숏폼 트렌드 피드로 즉시 이동하세요! 매번 무작위 추천 키워드도 함께 갱신됩니다. 🚀
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="https://www.instagram.com/reels/" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
+                        <span class="text-2xl">📸</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">인스타그램 릴스</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">실시간 인기 영상 피드</p>
+                        </div>
+                    </a>
+                    <a href="https://www.tiktok.com/explore" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
+                        <span class="text-2xl">🎵</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">틱톡 (TikTok)</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">지금 뜨는 글로벌 챌린지</p>
+                        </div>
+                    </a>
+                    <a href="https://www.youtube.com/shorts" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
+                        <span class="text-2xl">▶️</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">유튜브 쇼츠</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">실시간 급상승 숏클립</p>
+                        </div>
+                    </a>
+                    <a href="https://twitter.com/explore/tabs/trending" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
+                        <span class="text-2xl">💬</span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">X (트위터) 트렌드</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">실시간 실검 키워드</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            ✨ 오늘의 무작위 추천 챌린지 및 밈
+                        </h4>
+                        <button onclick="refreshRandomTrends()" class="text-[10px] text-indigo-600 font-bold hover:underline cursor-pointer">
+                            🔄 다른 밈 보기
+                        </button>
+                    </div>
+                    <div id="dynamic-trend-container" class="space-y-2">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Setting 탭 -->
+            <div id="tab-setting" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        ⚙️ 데이터 백업 및 복원 관리
+                    </h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        이 기기에 자동 저장된 준비물과 할 일 데이터를 안전하게 파일로 백업하거나, 다른 기기에서 백업한 파일을 불러와 복원할 수 있습니다.
+                    </p>
+
+                    <div class="pt-2">
+                        <button onclick="exportData()" class="w-full bg-indigo-600 text-white py-3 rounded-2xl text-xs font-bold shadow-md hover:bg-indigo-700 transition cursor-pointer flex items-center justify-center gap-2">
+                            <span>💾 내 데이터 백업하기 (다운로드)</span>
+                        </button>
+                    </div>
+
+                    <div class="pt-1">
+                        <label class="w-full bg-slate-100 text-slate-700 py-3 rounded-2xl text-xs font-bold border border-slate-200 shadow-2xs hover:bg-slate-200 transition cursor-pointer flex items-center justify-center gap-2">
+                            <span>📂 데이터 복원하기 (파일 불러오기)</span>
+                            <input type="file" id="import-file-input" accept=".json" onchange="importData(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- 하단 네비게이션 바 -->
-        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-20 shadow-lg">
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-4 flex justify-around items-center z-20 shadow-lg">
             <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-indigo-600 scale-105 font-bold transition-all cursor-pointer">
                 <span class="text-lg">🏠</span>
-                <span class="text-[11px]">홈</span>
+                <span class="text-[10px]">홈</span>
             </button>
             <button onclick="switchTab('supplies')" id="nav-supplies" class="flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer">
                 <span class="text-lg">🎒</span>
-                <span class="text-[11px]">준비물</span>
+                <span class="text-[10px]">준비물</span>
             </button>
             <button onclick="switchTab('todo')" id="nav-todo" class="flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer">
                 <span class="text-lg">📝</span>
-                <span class="text-[11px]">할 일</span>
+                <span class="text-[10px]">할 일</span>
+            </button>
+            <button onclick="switchTab('bored')" id="nav-bored" class="flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer">
+                <span class="text-lg">📺</span>
+                <span class="text-[10px]">심심해</span>
+            </button>
+            <button onclick="switchTab('setting')" id="nav-setting" class="flex flex-col items-center gap-1 text-slate-400 font-medium transition-all cursor-pointer">
+                <span class="text-lg">⚙️</span>
+                <span class="text-[10px]">Setting</span>
             </button>
         </div>
 
     </div>
 
-    <!-- JavaScript 로직 (LocalStorage 연동 포함) -->
+    <!-- JavaScript 로직 -->
     <script>
         let currentTab = 'home';
         let homeSegment = 'checklist';
         let selectedDate = '2026-10-23';
-        let selectedHourIndex = 3; // 09:00 기준
+        let selectedHourIndex = 1;
 
         let calYear = 2026;
-        let calMonth = 9; // 0-indexed (9 = 10월)
+        let calMonth = 9;
 
-        // 24시간 3시간 간격 날씨 데이터
-        const hourlyWeather = [
-            { time: '00:00', temp: '11°', type: 'cloudy', desc: '구름많음', rain: '20%', wind: '2m/s', uv: '낮음', dust: '보통', icon: '☁️' },
-            { time: '03:00', temp: '10°', type: 'rain', desc: '비 시작', rain: '70%', wind: '3m/s', uv: '낮음', dust: '나쁨', icon: '🌧️' },
-            { time: '06:00', temp: '12°', type: 'rain', desc: '비 내림', rain: '80%', wind: '3m/s', uv: '낮음', dust: '나쁨', icon: '🌧️' },
-            { time: '09:00', temp: '14°', type: 'rain', desc: '비 집중', rain: '90%', wind: '4m/s', uv: '보통', dust: '나쁨', icon: '🌧️' },
-            { time: '12:00', temp: '15°', type: 'cloudy', desc: '흐림', rain: '30%', wind: '3m/s', uv: '보통', dust: '보통', icon: '☁️' },
-            { time: '15:00', temp: '16°', type: 'sunny', desc: '구름틈 맑음', rain: '10%', wind: '2m/s', uv: '높음', dust: '좋음', icon: '☀️' },
-            { time: '18:00', temp: '13°', type: 'windy', desc: '강풍 주의', rain: '0%', wind: '7m/s', uv: '낮음', dust: '좋음', icon: '🌬️' },
-            { time: '21:00', temp: '11°', type: 'snow', desc: '내일 새벽 눈/비 예고', rain: '60%', wind: '5m/s', uv: '낮음', dust: '보통', icon: '❄️' },
-        ];
-
-        // 준비물 리스트 (LocalStorage 연동)
-        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies')) || [
-            { id: 1, text: '지갑 👛', isEssential: true, date: '2026-10-23' },
-            { id: 2, text: '핸드폰 📱', isEssential: true, date: '2026-10-23' },
-            { id: 3, text: '에어팟 🎧', isEssential: true, date: '2026-10-23' },
-            { id: 4, text: '우산 ☔', isEssential: false, date: '2026-10-23' },
-            { id: 5, text: '회의 자료 📁', isEssential: false, date: '2026-10-30' },
-        ];
-
-        // 일정 리스트 (LocalStorage 연동)
-        let userChecklists = JSON.parse(localStorage.getItem('hhh_checklists')) || {
-            '2026-10-23': [
-                { id: 1, text: '팀 회의 자료 최종 검토', completed: false, time: '14:00' },
-                { id: 2, text: '오후 미팅 장소 예약 확인', completed: true, time: '16:00' }
-            ],
-            '2026-10-30': [
-                { id: 3, text: '프로젝트 최종 발표', completed: false, time: '10:00' }
-            ]
+        const publicHolidays2026 = {
+            '2026-01-01': '신정',
+            '2026-03-01': '삼일절',
+            '2026-05-05': '어린이날',
+            '2026-05-24': '부처님오신날',
+            '2026-06-06': '현충일',
+            '2026-08-15': '광복절',
+            '2026-09-24': '추석',
+            '2026-09-25': '추석',
+            '2026-09-26': '추석',
+            '2026-10-03': '개천절',
+            '2026-10-05': '대체공휴일',
+            '2026-10-09': '한글날',
+            '2026-12-25': '크리스마스'
         };
 
-        // 데이터 저장 함수
+        const quotesPool = [
+            "\"피할 수 없으면 즐겨라.\" - 로버트 엘리엇",
+            "\"계획 없는 목표는 한낱 꿈에 불과하다.\" - 안투안 드 생텍쥐페리",
+            "\"오늘 할 수 있는 일을 내일로 미루지 마라.\" - 벤자민 프랭클린",
+            "\"작은 기회로부터 종종 위대한 업적이 시작된다.\" - 데모스테네스",
+            "\"성공한 사람이 되려 하지 말고 가치 있는 사람이 되려 하라.\" - 알베르트 아인슈타인",
+            "\"내일은 오늘 준비하는 사람의 것이다.\" - 말콤 X",
+            "\"삶이 있는 한 희망은 있다.\" - 키케로",
+            "\"산을 움직이려 하는 사람은 작은 돌을 먼저 움직이는 것부터 시작한다.\" - 공자",
+            "\"절대 어제를 후회하지 마라. 인생은 오늘의 나 안에 있고, 내일은 스스로 만드는 것이다.\" - L.론 허바드",
+            "\"행동은 모든 성공의 가장 기초적인 핵심이다.\" - 파블로 피카소",
+            "\"너 자신을 알라.\" - 소크라테스",
+            "\"진정으로 웃으려면 고통을 참아야 하며, 나아가 고통을 즐길 줄 알아야 해.\" - 찰리 채플린",
+            "\"시간은 누군가에게는 길고, 누군가에게는 유용하다.\" - 단테",
+            "\"가장 큰 위험은 위험을 감수하지 않는 것이다.\" - 스티븐 코비",
+            "\"가장 현명한 사람은 모든 사람이 갖고 있는 결점을 스스로 반성하는 사람이다.\" - 키케로",
+            "\"꿈을 계속 간직하고 있으면 반드시 실현할 때가 온다.\" - 괴테",
+            "\"고통이 없으면 얻는 것도 없다.\" - 벤자민 프랭클린",
+            "\"성공의 비결은 단 하나, 끝까지 포기하지 않는 것이다.\" - 톨스토이",
+            "\"네 믿음은 네 생각이 된다. 네 생각은 네 말이 된다. 네 말은 네 행동이 된다.\" - 마하트마 간디",
+            "\"길을 걸어가야 할 사람은 바로 나 자신이다.\" - 법정 스님",
+            "\"인생은 속도가 아니라 방향이다.\" - 괴테",
+            "\"지금이 가장 비참하다고 생각할 때가, 그가 다시 일어설 수 있는 가장 빠른 때이다.\" - 셰익스피어",
+            "\"한 번의 실패와 영원한 실패를 혼동하지 마라.\" - F. 스콧 피츠제럴드",
+            "\"눈물과 함께 빵을 먹어 보지 않은 자는 인생의 참맛을 모른다.\" - 괴테",
+            "\"우리가 할 수 있는 최선을 다할 때, 우리 또는 타인의 삶에 어떤 일이 일어날지 모른다.\" - 헬렌 켈러",
+            "\"생각하는 대로 살지 않으면, 사는 대로 생각하게 된다.\" - 폴 부르제",
+            "\"지혜는 경험에서 온다. 그리고 경험은 대개 어리석은 실수에서 온다.\" - 테리 프라쳇",
+            "\"가장 어두운 밤도 결국 끝나고 해는 뜰 것이다.\" - 빅토르 위고",
+            "\"행복은 습관이다. 그것을 몸에 지녀라.\" - 허버드",
+            "\"열정 없이 감행된 위대한 일은 단 하나도 없다.\" - 헤겔",
+            "\"네가 헛되이 보낸 오늘은 어제 죽은 이가 그토록 바라던 하루이다.\" - 소포클레스",
+            "\"작은 일에 성실한 사람은 큰 일에도 성실하다.\" - 성경",
+            "\"시작이 반이다.\" - 아리스토텔레스",
+            "\"천 리 길도 한 걸음부터.\" - 노자",
+            "\"모든 성취의 시작은 갈망에 있다.\" - 나폴레온 힐",
+            "\"자신을 믿어라. 자신의 능력을 믿어라.\" - 노먼 빈센트 필",
+            "\"승자는 패배할 때마다 더 강해진다.\" - 아놀드 슈왈제네거",
+            "\"변화는 우리가 오기를 기다리는 다른 누군가, 다른 무엇이 아니다. 우리 자신이 바로 우리가 찾는 변화이다.\" - 버락 오바마",
+            "\"어려운 문제에 부딪힐 때마다, 이것 또한 지나가리라.\" - 페르시아 왕실 격언",
+            "\"성공은 매일 반복한 작은 노력들의 합이다.\" - 로버트 콜리어",
+            "\"실패는 단지 더 현명하게 다시 시작할 수 있는 기회이다.\" - 헨리 포드",
+            "\"당신이 할 수 있다고 믿든 할 수 없든 믿는 대로 될 것이다.\" - 헨리 포드",
+            "\"배우기만 하고 생각하지 않으면 허황되고, 생각만 하고 배우지 않으면 위태롭다.\" - 공자",
+            "\"진정한 발견의 여행은 새로운 풍경을 찾는 것이 아니라 새로운 눈을 갖는 것이다.\" - 마르셀 프루스트",
+            "\"위대한 업적은 기분으로 이루어지는 것이 아니라, 끊기 있는 행동으로 이루어진다.\" - 존 러스킨",
+            "\"겨울이 오면 봄이 멀지 않으리.\" - 퍼시 비시 셸리",
+            "\"인생에서 가장 슬픈 것은 후회하며 사는 것이다.\" - H. H. 모리슨",
+            "\"웃음 없는 하루는 낭비한 하루다.\" - 찰리 채플린",
+            "\"오늘 하루가 인생의 전부인 것처럼 살아라.\" - 루네우스",
+            "\"희망은 붕괴하지 않는 유일한 보물이다.\" - 디오게네스"
+        ];
+
+        const trendPool = [
+            { title: "AI 럼펠스틸츠킨 춤 챌린지", desc: "환상적인 80년대 판타지 분위기의 중독성 댄스", tag: "🔥 급상승", tagColor: "bg-rose-100 text-rose-600" },
+            { title: "'가난하게 컸어?' 대사 리액션 릴스", desc: "반전 유머와 위트 있는 일상 대사 패러디", tag: "💬 대세 짤", tagColor: "bg-amber-100 text-amber-700" },
+            { title: "AI가 보는 나 한 단어 프로필", desc: "내 분위기를 AI에게 물어보고 공유하는 놀이", tag: "🎯 자아탐색", tagColor: "bg-emerald-100 text-emerald-700" },
+            { title: "카더가든 - 나무 챌린지", desc: "잔잔한 노래에 맞춘 정신없는 팔다리 댄스 릴스", tag: "🎵 중독성", tagColor: "bg-purple-100 text-purple-700" },
+            { title: "고양이 르세라핌 챌린지", desc: "귀여운 반려동물과 함께하는 최신 숏폼 안무", tag: "🐾 힐링", tagColor: "bg-blue-100 text-blue-700" },
+            { title: "오피스 직장인 공감 ASMR", desc: "출근길부터 퇴근까지 리얼 직장인 일상 브이로그", tag: "☕ 공감", tagColor: "bg-indigo-100 text-indigo-700" },
+            { title: "주말 홈카페 숏레시피", desc: "단 1분 만에 만드는 초간단 디저트 레시피 릴스", tag: "🍰 맛있는", tagColor: "bg-pink-100 text-pink-700" }
+        ];
+
+        const hourlyWeather = [
+            { time: '17:00', temp: '20°', type: 'sunny', desc: '맑음', rain: '65%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☀️' },
+            { time: '18:00', temp: '19°', type: 'cloudy', desc: '구름많음', rain: '69%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
+            { time: '19:00', temp: '18°', type: 'cloudy', desc: '구름많음', rain: '73%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
+            { time: '20:00', temp: '17°', type: 'cloudy', desc: '흐림', rain: '75%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
+            { time: '21:00', temp: '17°', type: 'sunny', desc: '맑음', rain: '75%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '🌙' },
+            { time: '22:00', temp: '17°', type: 'cloudy', desc: '구름많음', rain: '77%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
+            { time: '23:00', temp: '16°', type: 'cloudy', desc: '구름많음', rain: '79%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
+        ];
+
+        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v13')) || [];
+        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v13')) || {};
+
         function saveData() {
-            localStorage.setItem('hhh_supplies', JSON.stringify(suppliesList));
-            localStorage.setItem('hhh_checklists', JSON.stringify(userChecklists));
+            localStorage.setItem('hhh_supplies_v13', JSON.stringify(suppliesList));
+            localStorage.setItem('hhh_tasks_v13', JSON.stringify(userChecklists));
         }
 
-        // 자동 이모지 매칭 함수
+        function exportData() {
+            const backupData = {
+                supplies: suppliesList,
+                tasks: userChecklists,
+                version: "v3.5",
+                backupDate: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `hhh_backup_${new Date().toISOString().slice(0, 10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.supplies && parsed.tasks) {
+                        suppliesList = parsed.supplies;
+                        userChecklists = parsed.tasks;
+                        saveData();
+                        renderSupplies();
+                        renderCalendar();
+                        renderTasks();
+                        alert("데이터가 성공적으로 복원되었습니다! ✨");
+                        switchTab('home');
+                    } else {
+                        alert("올바른 백업 파일 형식이 아닙니다.");
+                    }
+                } catch (err) {
+                    alert("파일을 읽는 중 오류가 발생했습니다.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
         function getAutoEmojiText(text) {
             const lower = text.toLowerCase();
             if (lower.includes('우산') || lower.includes('비')) return text.includes('☔') ? text : `${text} ☔`;
@@ -425,21 +578,84 @@
             return text;
         }
 
-        // 초기 렌더링
         window.onload = function() {
             renderHourlyTabs();
             renderWeatherCard();
             renderSupplies();
             renderCalendar();
             renderTasks();
-            updateSmartBriefing();
+            initRandomQuote();
+            initUserLocation();
+            refreshRandomTrends();
         };
 
-        // 탭 전환
+        function initRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotesPool.length);
+            document.getElementById('random-quote-box').innerText = quotesPool[randomIndex];
+        }
+
+        function refreshRandomTrends() {
+            const container = document.getElementById('dynamic-trend-container');
+            const shuffled = [...trendPool].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+
+            container.innerHTML = selected.map(item => `
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
+                    <div class="space-y-0.5">
+                        <span class="text-[9px] font-bold ${item.tagColor} px-2 py-0.5 rounded-md">${item.tag}</span>
+                        <h5 class="text-xs font-bold text-slate-800">${item.title}</h5>
+                        <p class="text-[10px] text-slate-500">${item.desc}</p>
+                    </div>
+                    <a href="https://www.instagram.com/explore/tags/릴스/" target="_blank" class="bg-indigo-600 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold hover:bg-indigo-700 transition shrink-0">
+                        보러가기 ↗
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function initUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        try {
+                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=ko`);
+                            const data = await response.json();
+                            if (data && data.address) {
+                                const addr = data.address;
+                                const city = addr.city || addr.county || addr.state || '현재 위치';
+                                const district = addr.borough || addr.suburb || addr.town || addr.village || '';
+                                const fullLoc = district ? `${city} ${district}` : city;
+                                
+                                document.getElementById('location-label').innerText = fullLoc;
+                                document.getElementById('hourly-panel-title').innerHTML = `⏰ 24시간 시간별 날씨 (${fullLoc})`;
+                                document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 GPS 날씨 연동`;
+                                document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 19°C로 쾌적합니다. 기분 좋은 하루 보내세요! ✨`;
+                            }
+                        } catch (e) {
+                            setLocationFallback("화성시 영천동");
+                        }
+                    },
+                    (error) => { setLocationFallback("화성시 영천동"); },
+                    { timeout: 10000 }
+                );
+            } else {
+                setLocationFallback("화성시 영천동");
+            }
+        }
+
+        function setLocationFallback(locName) {
+            document.getElementById('location-label').innerText = locName;
+            document.getElementById('hourly-panel-title').innerHTML = `⏰ 24시간 시간별 날씨 (${locName})`;
+            document.getElementById('weather-subtext').innerText = `${locName} · 실시간 날씨 연동`;
+            document.getElementById('smart-briefing-text').innerText = `${locName} 현재 기온 19°C로 쾌적합니다. 기분 좋은 하루 보내세요! ✨`;
+        }
+
         function switchTab(tab) {
             currentTab = tab;
             document.getElementById('hourly-weather-panel').classList.toggle('hidden', tab !== 'home');
-            ['home', 'supplies', 'todo'].forEach(t => {
+            ['home', 'supplies', 'todo', 'bored', 'setting'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (t === tab) {
@@ -450,7 +666,6 @@
             });
         }
 
-        // 홈 서브 탭 전환
         function switchHomeSegment(seg) {
             homeSegment = seg;
             document.getElementById('home-checklist-view').classList.toggle('hidden', seg !== 'checklist');
@@ -460,14 +675,13 @@
             document.getElementById('seg-btn-tasks').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${seg === 'tasks' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'}`;
         }
 
-        // 시간별 날씨 탭 렌더링
         function renderHourlyTabs() {
             const container = document.getElementById('hourly-tabs');
             container.innerHTML = hourlyWeather.map((hw, idx) => `
                 <button onclick="selectHour(${idx})" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold flex flex-col items-center shrink-0 transition-all cursor-pointer ${selectedHourIndex === idx ? 'bg-indigo-600 text-white shadow-sm scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}">
                     <span class="text-[10px] opacity-80">${hw.time}</span>
                     <span class="text-sm font-bold my-0.5">${hw.temp}</span>
-                    <span class="text-[9px] weather-emoji ${hw.type === 'rain' ? 'weather-emoji-rain' : hw.type === 'sunny' ? 'weather-emoji-sun' : ''}">${hw.icon}</span>
+                    <span class="text-[9px] weather-emoji">${hw.icon}</span>
                 </button>
             `).join('');
             document.getElementById('selected-hour-label').innerText = `${hourlyWeather[selectedHourIndex].time} 기준 상세`;
@@ -477,117 +691,25 @@
             selectedHourIndex = idx;
             renderHourlyTabs();
             renderWeatherCard();
-            updateSmartBriefing();
         }
 
-        // 날씨 효과 그래픽 오버레이 동적 생성
-        function updateWeatherFxLayer(type) {
-            const layer = document.getElementById('weather-fx-layer');
-            layer.innerHTML = '';
-
-            if (type === 'rain') {
-                for (let i = 0; i < 9; i++) {
-                    const drop = document.createElement('div');
-                    drop.className = 'rain-drop';
-                    drop.innerText = '💧';
-                    drop.style.left = `${8 + i * 11}%`;
-                    drop.style.animationDelay = `${(i * 0.17) % 0.9}s`;
-                    drop.style.fontSize = `${11 + (i % 3) * 3}px`;
-                    layer.appendChild(drop);
-                }
-            } else if (type === 'cloudy') {
-                const clouds = [
-                    { top: '8px', size: '26px', delay: '-0.5s' },
-                    { top: '32px', size: '36px', delay: '-2.8s' },
-                    { top: '16px', size: '24px', delay: '-4.2s' },
-                    { top: '48px', size: '32px', delay: '-5.6s' },
-                    { top: '24px', size: '28px', delay: '-1.8s' }
-                ];
-                clouds.forEach(c => {
-                    const cloud = document.createElement('div');
-                    cloud.className = 'cloud-item';
-                    cloud.innerText = '☁️';
-                    cloud.style.top = c.top;
-                    cloud.style.fontSize = c.size;
-                    cloud.style.animationDelay = c.delay;
-                    layer.appendChild(cloud);
-                });
-            } else if (type === 'sunny') {
-                const sunBg = document.createElement('div');
-                sunBg.className = 'sunny-sun-bg';
-                layer.appendChild(sunBg);
-            } else if (type === 'windy') {
-                const lines = [
-                    { top: '20%', width: '90px', delay: '0s' },
-                    { top: '45%', width: '130px', delay: '0.8s' },
-                    { top: '70%', width: '100px', delay: '1.5s' }
-                ];
-                lines.forEach(l => {
-                    const line = document.createElement('div');
-                    line.className = 'wind-line-strong';
-                    line.style.top = l.top;
-                    line.style.width = l.width;
-                    line.style.animationDelay = l.delay;
-                    layer.appendChild(line);
-                });
-
-                const leaf = document.createElement('div');
-                leaf.className = 'wind-leaf';
-                leaf.innerText = '🍃';
-                leaf.style.top = '35%';
-                leaf.style.animationDelay = '0.3s';
-                layer.appendChild(leaf);
-            } else if (type === 'snow') {
-                for (let i = 0; i < 10; i++) {
-                    const flake = document.createElement('div');
-                    flake.className = 'snow-flake';
-                    const sz = 6 + (i % 4) * 3;
-                    flake.style.width = `${sz}px`;
-                    flake.style.height = `${sz}px`;
-                    flake.style.left = `${6 + i * 9.5}%`;
-                    flake.style.animationDelay = `${(i * 0.35) % 2.5}s`;
-                    layer.appendChild(flake);
-                }
-            }
-        }
-
-        // 날씨 카드 렌더링
         function renderWeatherCard() {
             const hw = hourlyWeather[selectedHourIndex];
             document.getElementById('weather-temp').innerText = hw.temp;
             document.getElementById('weather-desc').innerText = hw.desc;
             const weatherIcon = document.getElementById('weather-icon-box');
             weatherIcon.innerText = hw.icon;
-            weatherIcon.className = 'bg-white/90 p-3 rounded-2xl shadow-xs text-3xl weather-emoji ' +
-                (hw.type === 'rain' ? 'weather-emoji-rain' : hw.type === 'sunny' ? 'weather-emoji-sun' : '');
             document.getElementById('val-rain').innerText = hw.rain;
             document.getElementById('val-wind').innerText = hw.wind;
             document.getElementById('val-uv').innerText = hw.uv;
             document.getElementById('val-dust').innerText = hw.dust;
-            document.getElementById('weather-badge').innerText = hw.type === 'rain' ? '비 내림 (우산 필요)' : hw.type === 'snow' ? '눈 소식 (방한 대비)' : hw.type === 'windy' ? '강풍 주의' : hw.type === 'cloudy' ? '구름 많음' : '맑고 쾌적';
+            document.getElementById('weather-badge').innerText = hw.type === 'sunny' ? '맑고 쾌적' : '구름많음 (외출 무난)';
 
             const card = document.getElementById('weather-card-container');
-            card.classList.remove('weather-rain', 'weather-snow', 'weather-sunny', 'weather-cloudy', 'weather-windy');
-            card.classList.add('weather-' + (hw.type === 'snow' ? 'snow' : hw.type === 'sunny' ? 'sunny' : hw.type === 'rain' ? 'rain' : hw.type === 'windy' ? 'windy' : 'cloudy'));
-
-            updateWeatherFxLayer(hw.type);
+            card.classList.remove('weather-rain', 'weather-snow', 'weather-sunny', 'weather-cloudy');
+            card.classList.add(hw.type === 'sunny' ? 'weather-sunny' : 'weather-cloudy');
         }
 
-        // 스마트 브리핑
-        function updateSmartBriefing() {
-            const hour = new Date().getHours();
-            const isNight = hour >= 18 || hour <= 6;
-            let msg = "오늘 하루도 쾌적하고 활기찬 일상을 보내세요! ✨";
-
-            if (isNight || hourlyWeather[selectedHourIndex].type === 'rain' || hourlyWeather[7].type === 'rain') {
-                msg = "비/눈 소식이 있거나 저녁 시간대입니다. 우산을 꼭 챙기세요! ☔";
-            } else if (hourlyWeather[selectedHourIndex].type === 'snow') {
-                msg = "눈길 조심하시고 따뜻한 옷차림을 준비하세요! ❄️";
-            }
-            document.getElementById('smart-briefing-text').innerText = msg;
-        }
-
-        // 준비물 추가
         function handleAddSupply(e) {
             e.preventDefault();
             const textInput = document.getElementById('sup-input-text');
@@ -596,36 +718,31 @@
 
             if (!textInput.value.trim()) return;
 
-            const newItem = {
+            suppliesList.push({
                 id: Date.now(),
                 text: getAutoEmojiText(textInput.value.trim()),
                 isEssential: essentialInput.checked,
-                date: dateInput.value
-            };
+                date: dateInput.value || selectedDate
+            });
 
-            suppliesList.push(newItem);
             textInput.value = '';
             essentialInput.checked = false;
-            
-            saveData(); // 데이터 저장
+            saveData();
             renderSupplies();
-            switchTab('home');
         }
 
-        // 준비물 삭제
         function deleteSupply(id) {
             suppliesList = suppliesList.filter(s => s.id !== id);
-            saveData(); // 데이터 저장
+            saveData();
             renderSupplies();
         }
 
-        // 준비물 렌더링
         function renderSupplies() {
             const homeContainer = document.getElementById('home-supplies-container');
             const todaySupplies = suppliesList.filter(s => s.isEssential || s.date === selectedDate);
 
             if (todaySupplies.length === 0) {
-                homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">오늘의 등록된 준비물이 없습니다.</p>`;
+                homeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-2xl">오늘 등록된 준비물이 없습니다.</p>`;
             } else {
                 homeContainer.innerHTML = todaySupplies.map(s => `
                     <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-2xs flex justify-between items-center">
@@ -651,18 +768,17 @@
                             </div>
                             <span class="text-[10px] text-slate-400">${s.isEssential ? '매일 필수 포함' : `${s.date} 지정`}</span>
                         </div>
-                        <button onclick="deleteSupply(${s.id})" class="text-xs text-rose-400 hover:text-rose-600 p-1.5 cursor-pointer">
-                            ✕
-                        </button>
+                        <button onclick="deleteSupply(${s.id})" class="text-xs text-rose-400 hover:text-rose-600 p-1.5 cursor-pointer">✕</button>
                     </div>
                 `).join('');
             }
         }
 
-        // 캘린더 렌더링
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
-            document.getElementById('cal-title').innerText = `${calYear}년 ${calMonth + 1}월`;
+            const pickerMonthStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}`;
+            const monthPickerEl = document.getElementById('calendar-month-picker');
+            if (monthPickerEl) monthPickerEl.value = pickerMonthStr;
 
             const firstDay = new Date(calYear, calMonth, 1).getDay();
             const lastDate = new Date(calYear, calMonth + 1, 0).getDate();
@@ -673,18 +789,37 @@
             }
 
             for (let d = 1; d <= lastDate; d++) {
+                const dayOfWeek = (firstDay + d - 1) % 7;
                 const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const isSelected = dateStr === selectedDate;
+                const holidayName = publicHolidays2026[dateStr];
                 const hasTask = userChecklists[dateStr] && userChecklists[dateStr].length > 0;
 
+                let textColor = 'text-slate-700';
+                if (dayOfWeek === 0 || holidayName) {
+                    textColor = 'text-rose-500 font-bold';
+                } else if (dayOfWeek === 6) {
+                    textColor = 'text-blue-500 font-bold';
+                }
+
                 html += `
-                    <button onclick="selectDate('${dateStr}')" class="py-2 rounded-xl text-xs flex flex-col items-center justify-center transition-all cursor-pointer relative ${isSelected ? 'bg-indigo-600 text-white font-bold shadow-sm scale-105' : 'hover:bg-slate-100 text-slate-700'}">
+                    <button onclick="selectDate('${dateStr}')" class="py-1.5 px-1 rounded-xl text-xs flex flex-col items-center justify-center transition-all cursor-pointer relative ${isSelected ? 'bg-indigo-600 text-white !text-white font-bold shadow-sm scale-105' : 'hover:bg-slate-100 ' + textColor}" title="${holidayName || ''}">
                         <span>${d}</span>
+                        ${holidayName ? `<span class="text-[8px] text-rose-500 font-semibold scale-90 truncate max-w-full">${holidayName}</span>` : ''}
                         ${hasTask ? `<span class="w-1 h-1 ${isSelected ? 'bg-white' : 'bg-indigo-500'} rounded-full mt-0.5"></span>` : ''}
                     </button>
                 `;
             }
             grid.innerHTML = html;
+        }
+
+        function handleMonthPickerChange(e) {
+            const val = e.target.value;
+            if (!val) return;
+            const parts = val.split('-');
+            calYear = parseInt(parts[0], 10);
+            calMonth = parseInt(parts[1], 10) - 1;
+            renderCalendar();
         }
 
         function changeMonth(delta) {
@@ -704,7 +839,6 @@
             renderTasks();
         }
 
-        // 일정 추가
         function handleAddTask(e) {
             e.preventDefault();
             const textInput = document.getElementById('task-input-text');
@@ -724,32 +858,29 @@
             });
 
             textInput.value = '';
-            saveData(); // 데이터 저장
+            saveData();
             renderTasks();
             renderCalendar();
         }
 
-        // 일정 완료 토글
         function toggleTask(id) {
             if (userChecklists[selectedDate]) {
                 const task = userChecklists[selectedDate].find(t => t.id === id);
                 if (task) task.completed = !task.completed;
+                saveData();
             }
-            saveData(); // 데이터 저장
             renderTasks();
         }
 
-        // 일정 삭제
         function deleteTask(id) {
             if (userChecklists[selectedDate]) {
                 userChecklists[selectedDate] = userChecklists[selectedDate].filter(t => t.id !== id);
+                saveData();
             }
-            saveData(); // 데이터 저장
             renderTasks();
             renderCalendar();
         }
 
-        // 일정 렌더링
         function renderTasks() {
             const homeContainer = document.getElementById('home-tasks-container');
             const todoContainer = document.getElementById('todo-list-container');
