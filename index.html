@@ -665,7 +665,6 @@
             const startDate = new Date(2025, 7, 8); // 8월은 인덱스 7
             const now = new Date();
             
-            // 날짜 간격 계산 (시/분/초 차이 제거)
             const utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             const utcToday = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
             
@@ -768,8 +767,12 @@
             updateLoveDays(); // ❤️ 사랑한지 디데이 업데이트
             initRandomQuote();
             initRandomQuiz();
-            refreshLocationAndWeather();
             renderFortune();
+
+            // 🔑 접속 완료(사용자 액션 발생) 후에 GPS 및 날씨 불러오기 실행
+            setTimeout(() => {
+                refreshLocationAndWeather();
+            }, 300);
         }
 
         function openApp(appScheme, webUrl) {
