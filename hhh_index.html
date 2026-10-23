@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HHH 비서 앱</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex justify-center">
+
+    <!-- Mobile Container -->
+    <div class="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col relative pb-20">
+        
+        <!-- Header -->
+        <header class="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-b-3xl shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">HHH 비서</h1>
+                    <p class="text-xs text-blue-100 opacity-90 mt-0.5">오늘도 스마트한 하루 보내세요!</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+                    <i class="fa-solid me-0 fa-user-astronaut text-white text-lg"></i>
+                </div>
+            </div>
+
+            <!-- Mini Weather Bar -->
+            <div id="weather-card" class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 flex items-center justify-between text-sm">
+                <div class="flex items-center space-x-3">
+                    <div id="weather-icon" class="text-2xl text-yellow-300">
+                        <i class="fa-solid fa-sun animate-pulse"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-white flex items-center space-x-1">
+                            <span id="weather-temp">22°C</span>
+                            <span class="text-xs opacity-75">|</span>
+                            <span id="weather-desc" class="text-xs font-normal">맑음</span>
+                        </div>
+                        <p class="text-[11px] text-blue-100">화성시 영천동 기준</p>
+                    </div>
+                </div>
+                <button onclick="fetchWeather()" class="text-xs bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-lg transition text-white">
+                    <i class="fa-solid fa-rotate-right mr-1"></i>갱신
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-5 space-y-6">
+
+            <!-- TAB 1: 준비물 (Checklist) -->
+            <section id="tab-supplies" class="tab-content space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-box-archive text-blue-500"></i> 외출 준비물
+                    </h2>
+                    <span id="supplies-count" class="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-0.5 rounded-full">0/0</span>
+                </div>
+
+                <!-- Input Box -->
+                <div class="flex gap-2">
+                    <input type="text" id="supply-input" placeholder="새 준비물 입력..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition">
+                    <button onclick="addSupply()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md active:scale-95 transition">
+                        추가
+                    </button>
+                </div>
+
+                <!-- List -->
+                <ul id="supplies-list" class="space-y-2">
+                    <!-- Items rendered dynamically -->
+                </ul>
+            </section>
+
+            <!-- TAB 2: 할 일 (Todo) -->
+            <section id="tab-todos" class="tab-content hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-indigo-500"></i> 오늘 할 일
+                    </h2>
+                    <span id="todos-count" class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-0.5 rounded-full">0/0</span>
+                </div>
+
+                <!-- Input Box -->
+                <div class="flex gap-2">
+                    <input type="text" id="todo-input" placeholder="할 일 추가하기..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition">
+                    <button onclick="addTodo()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-md active:scale-95 transition">
+                        추가
+                    </button>
+                </div>
+
+                <!-- List -->
+                <ul id="todos-list" class="space-y-2">
+                    <!-- Items rendered dynamically -->
+                </ul>
+            </section>
+
+            <!-- TAB 3: 설정 및 데이터 백업/복원 -->
+            <section id="tab-settings" class="tab-content hidden space-y-5">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-slate-600"></i> 설정 및 데이터 보관
+                </h2>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h3 class="font-semibold text-sm text-slate-700">데이터 백업 & 복원</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        브라우저 캐시 삭제 시 데이터 유실을 방지하려면 주기적으로 백업 파일을 보관해 주세요.
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <button onclick="exportData()" class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white py-2.5 px-3 rounded-xl text-xs font-medium shadow-sm transition">
+                            <i class="fa-solid fa-download"></i> 백업 다운로드
+                        </button>
+                        <label class="flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2.5 px-3 rounded-xl text-xs font-medium shadow-sm cursor-pointer transition">
+                            <i class="fa-solid fa-upload"></i> 백업 복원하기
+                            <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 text-xs text-amber-800 space-y-1">
+                    <div class="font-semibold flex items-center gap-1.5 text-amber-900">
+                        <i class="fa-solid fa-circle-info"></i> 데이터 저장 방식 안내
+                    </div>
+                    <p>모든 데이터는 기기의 로컬 저장소(LocalStorage)에 실시간으로 자동 저장됩니다. 폰을 껐다 켜거나 앱을 종료해도 안전하게 유지됩니다.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 flex justify-around py-2.5 shadow-lg z-50">
+            <button onclick="switchTab('supplies')" id="nav-supplies" class="nav-btn flex flex-col items-center gap-1 text-blue-600">
+                <i class="fa-solid fa-box-archive text-lg"></i>
+                <span class="text-[11px] font-medium">준비물</span>
+            </button>
+            <button onclick="switchTab('todos')" id="nav-todos" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-list-check text-lg"></i>
+                <span class="text-[11px] font-medium">할 일</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-gear text-lg"></i>
+                <span class="text-[11px] font-medium">설정</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- Script -->
+    <script>
+        // State
+        let supplies = [];
+        let todos = [];
+
+        // Initial Default Data
+        const defaultSupplies = [
+            { id: 1, text: '스마트폰 & 차키', checked: false },
+            { id: 2, text: '지갑 / 카드', checked: false },
+            { id: 3, text: '무선 이어폰', checked: false }
+        ];
+
+        const defaultTodos = [
+            { id: 1, text: 'HHH 비서 앱 설치 테스트하기', checked: true },
+            { id: 2, text: '오늘 날씨 확인하고 준비물 챙기기', checked: false }
+        ];
+
+        // Load Data safely
+        function loadData() {
+            try {
+                const savedSupplies = localStorage.getItem('hhh_supplies');
+                const savedTodos = localStorage.getItem('hhh_todos');
+
+                supplies = savedSupplies ? JSON.parse(savedSupplies) : [...defaultSupplies];
+                todos = savedTodos ? JSON.parse(savedTodos) : [...defaultTodos];
+            } catch (e) {
+                console.error("Failed to load local data", e);
+                supplies = [...defaultSupplies];
+                todos = [...defaultTodos];
+            }
+            renderSupplies();
+            renderTodos();
+        }
+
+        // Save Data safely
+        function saveData() {
+            try {
+                localStorage.setItem('hhh_supplies', JSON.stringify(supplies));
+                localStorage.setItem('hhh_todos', JSON.stringify(todos));
+            } catch (e) {
+                console.error("Failed to save data", e);
+            }
+        }
+
+        // Render Supplies List
+        function renderSupplies() {
+            const listEl = document.getElementById('supplies-list');
+            const countEl = document.getElementById('supplies-count');
+            listEl.innerHTML = '';
+
+            const completedCount = supplies.filter(s => s.checked).length;
+            countEl.textContent = `${completedCount}/${supplies.length}`;
+
+            supplies.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = `flex items-center justify-between p-3.5 rounded-xl border transition ${
+                    item.checked ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 text-slate-700 shadow-sm'
+                }`;
+                li.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleSupply(${item.id})">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} class="w-5 h-5 rounded text-blue-600 focus:ring-0 cursor-pointer">
+                        <span class="text-sm font-medium ${item.checked ? 'line-through' : ''}">${escapeHtml(item.text)}</span>
+                    </div>
+                    <button onclick="deleteSupply(${item.id})" class="text-slate-300 hover:text-red-500 p-1 transition">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                `;
+                listEl.appendChild(li);
+            });
+        }
+
+        // Render Todos List
+        function renderTodos() {
+            const listEl = document.getElementById('todos-list');
+            const countEl = document.getElementById('todos-count');
+            listEl.innerHTML = '';
+
+            const completedCount = todos.filter(t => t.checked).length;
+            countEl.textContent = `${completedCount}/${todos.length}`;
+
+            todos.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = `flex items-center justify-between p-3.5 rounded-xl border transition ${
+                    item.checked ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 text-slate-700 shadow-sm'
+                }`;
+                li.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleTodo(${item.id})">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} class="w-5 h-5 rounded text-indigo-600 focus:ring-0 cursor-pointer">
+                        <span class="text-sm font-medium ${item.checked ? 'line-through' : ''}">${escapeHtml(item.text)}</span>
+                    </div>
+                    <button onclick="deleteTodo(${item.id})" class="text-slate-300 hover:text-red-500 p-1 transition">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                `;
+                listEl.appendChild(li);
+            });
+        }
+
+        // Add Supply
+        function addSupply() {
+            const input = document.getElementById('supply-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            supplies.push({ id: Date.now(), text: text, checked: false });
+            input.value = '';
+            saveData();
+            renderSupplies();
+        }
+
+        // Toggle Supply
+        function toggleSupply(id) {
+            supplies = supplies.map(s => s.id === id ? { ...s, checked: !s.checked } : s);
+            saveData();
+            renderSupplies();
+        }
+
+        // Delete Supply
+        function deleteSupply(id) {
+            supplies = supplies.filter(s => s.id !== id);
+            saveData();
+            renderSupplies();
+        }
+
+        // Add Todo
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            todos.push({ id: Date.now(), text: text, checked: false });
+            input.value = '';
+            saveData();
+            renderTodos();
+        }
+
+        // Toggle Todo
+        function toggleTodo(id) {
+            todos = todos.map(t => t.id === id ? { ...t, checked: !t.checked } : t);
+            saveData();
+            renderTodos();
+        }
+
+        // Delete Todo
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveData();
+            renderTodos();
+        }
+
+        // Switch Tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('text-blue-600', 'text-indigo-600');
+                el.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            
+            if (tabName === 'supplies') activeNav.classList.replace('text-slate-400', 'text-blue-600');
+            else if (tabName === 'todos') activeNav.classList.replace('text-slate-400', 'text-indigo-600');
+            else activeNav.classList.replace('text-slate-400', 'text-slate-800');
+        }
+
+        // Export Data
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ supplies, todos }, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `hhh_assistant_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Import Data
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.supplies && imported.todos) {
+                        supplies = imported.supplies;
+                        todos = imported.todos;
+                        saveData();
+                        renderSupplies();
+                        renderTodos();
+                        alert('데이터 복원이 성공적으로 완료되었습니다!');
+                    } else {
+                        alert('올바르지 않은 백업 파일 형식입니다.');
+                    }
+                } catch (err) {
+                    alert('파일을 읽는 중 오류가 발생했습니다.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Fetch Weather Placeholder
+        function fetchWeather() {
+            const temps = ['18°C', '20°C', '22°C', '23°C'];
+            const descs = ['맑음', '구름 조금', '쾌청함'];
+            const randomTemp = temps[Math.floor(Math.random() * temps.length)];
+            const randomDesc = descs[Math.floor(Math.random() * descs.length)];
+
+            document.getElementById('weather-temp').textContent = randomTemp;
+            document.getElementById('weather-desc').textContent = randomDesc;
+        }
+
+        // Helper Function
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Enter Key Handlers
+        document.getElementById('supply-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addSupply(); });
+        document.getElementById('todo-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
