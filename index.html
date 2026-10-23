@@ -12,77 +12,15 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 날씨 이모지 기본 모션 */
         @keyframes weatherFloat {
             0%, 100% { transform: translateY(0) rotate(-3deg); }
             50% { transform: translateY(-6px) rotate(3deg); }
         }
-        @keyframes weatherRain {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(4px); }
-        }
-        @keyframes weatherSun {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(12deg) scale(1.08); }
-        }
         .weather-emoji { display: inline-block; transform-origin: center; animation: weatherFloat 2.2s ease-in-out infinite; }
-        .weather-emoji-rain { animation: weatherRain 0.9s ease-in-out infinite; }
-        .weather-emoji-sun { animation: weatherSun 3s ease-in-out infinite; }
 
         .weather-scene { isolation: isolate; position: relative; overflow: hidden; }
-
-        /* 1. 비 올 때 */
-        .weather-scene.weather-rain {
-            background: linear-gradient(135deg, #d8f1f8 0%, #bce3ee 50%, #dbe6fe 100%) !important;
-            border-color: #b0def0 !important;
-        }
-        @keyframes rainDropFall {
-            0% { transform: translateY(-10px) scaleY(0.8); opacity: 0; }
-            30% { opacity: 0.9; }
-            90% { opacity: 0.9; }
-            100% { transform: translateY(110px) scaleY(1.1); opacity: 0; }
-        }
-        .rain-drop {
-            position: absolute; top: -10px; color: #38bdf8; font-size: 14px;
-            pointer-events: none; user-select: none; opacity: 0;
-            animation: rainDropFall 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        /* 2. 구름 많음 / 흐림 */
-        .weather-scene.weather-cloudy {
-            background: linear-gradient(135deg, #e4ebf5 0%, #d5e2f0 50%, #e2deee 100%) !important;
-            border-color: #c4d5ea !important;
-        }
-        @keyframes cloudFloatPass {
-            0% { transform: translateX(-80px); opacity: 0; }
-            15% { opacity: 0.85; }
-            85% { opacity: 0.85; }
-            100% { transform: translateX(360px); opacity: 0; }
-        }
-        .cloud-item {
-            position: absolute; pointer-events: none; user-select: none;
-            left: 0;
-            animation: cloudFloatPass 7s linear infinite;
-        }
-
-        /* 3. 맑음 */
-        .weather-scene.weather-sunny {
-            background: linear-gradient(135deg, #fff3d6 0%, #ffe3b3 50%, #fcd9df 100%) !important;
-            border-color: #f7d197 !important;
-        }
-        @keyframes sunPulseGlow {
-            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
-            50% { transform: scale(1.1) rotate(15deg); opacity: 1; }
-        }
-        .sunny-sun-bg {
-            position: absolute; top: -15px; right: -15px; width: 110px; height: 110px;
-            background: radial-gradient(circle, rgba(255, 200, 80, 0.45) 0%, rgba(255, 230, 150, 0.25) 45%, transparent 70%);
-            border-radius: 50%; pointer-events: none; animation: sunPulseGlow 4s ease-in-out infinite;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .weather-emoji, .rain-drop, .cloud-item { animation: none !important; }
-        }
+        .weather-scene.weather-cloudy { background: linear-gradient(135deg, #e4ebf5 0%, #d5e2f0 50%, #e2deee 100%) !important; border-color: #c4d5ea !important; }
+        .weather-scene.weather-sunny { background: linear-gradient(135deg, #fff3d6 0%, #ffe3b3 50%, #fcd9df 100%) !important; border-color: #f7d197 !important; }
     </style>
 </head>
 <body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
@@ -90,7 +28,7 @@
     <!-- 모바일 앱 프레임 -->
     <div class="w-full max-w-md bg-white sm:rounded-3xl shadow-2xl flex flex-col h-screen sm:h-[880px] overflow-hidden relative">
         
-        <!-- 상단 헤더 (요청하신 대로 수정 완료) -->
+        <!-- 상단 헤더 -->
         <div class="px-5 py-4 bg-white flex justify-between items-center border-b border-slate-100 shrink-0">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">H</div>
@@ -118,8 +56,6 @@
             
             <!-- 1. HOME 탭 -->
             <div id="tab-home" class="p-4 space-y-4">
-                
-                <!-- 날짜 및 위치 -->
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
                         📅 <span id="home-date-display">10월 23일 (금) - 오늘</span>
@@ -131,10 +67,6 @@
 
                 <!-- 날씨 카드 -->
                 <div id="weather-card-container" class="weather-scene weather-cloudy p-5 rounded-3xl border shadow-sm relative transition-all duration-700">
-                    
-                    <!-- 애니메이션 오버레이 레이어 -->
-                    <div id="weather-fx-layer" class="absolute inset-0 pointer-events-none z-0"></div>
-
                     <div class="flex justify-between items-center mb-3 relative z-10">
                         <span id="weather-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 shadow-xs">
                             구름많음 (쾌적)
@@ -155,7 +87,6 @@
                         </div>
                     </div>
 
-                    <!-- 2x2 수치 카드 -->
                     <div class="grid grid-cols-2 gap-2 mt-2 relative z-10">
                         <div class="bg-white/90 backdrop-blur-xs px-3 py-2.5 rounded-2xl flex items-center justify-between shadow-2xs">
                             <span class="text-xs text-slate-500">습도</span>
@@ -185,12 +116,12 @@
                             현재 위치의 실시간 날씨 정보를 불러오고 있습니다... ✨
                         </p>
                         <div id="random-quote-box" class="pt-2 border-t border-indigo-500/50 text-[11px] text-indigo-200 italic font-medium">
-                            <!-- 새로고침 시 무작위 명언 출력 -->
+                            <!-- 무작위 명언 -->
                         </div>
                     </div>
                 </div>
 
-                <!-- 홈 서브 탭 (준비물 / 할 일 전환) -->
+                <!-- 홈 서브 탭 -->
                 <div class="flex bg-slate-200/70 p-1 rounded-2xl">
                     <button onclick="switchHomeSegment('checklist')" id="seg-btn-checklist" class="flex-1 py-2 text-xs font-bold rounded-xl bg-white text-indigo-600 shadow-sm transition-all cursor-pointer">
                         오늘의 준비물 모아보기
@@ -200,22 +131,15 @@
                     </button>
                 </div>
 
-                <!-- 홈 화면 준비물 리스트 -->
                 <div id="home-checklist-view" class="space-y-3">
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">🎒 필수 고정 및 오늘 날짜 준비물</h3>
-                    <div id="home-supplies-container" class="space-y-2">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="home-supplies-container" class="space-y-2"></div>
                 </div>
 
-                <!-- 홈 화면 일정 리스트 -->
                 <div id="home-tasks-view" class="space-y-2 hidden">
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">📝 오늘의 등록된 일정</h3>
-                    <div id="home-tasks-container" class="space-y-2">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="home-tasks-container" class="space-y-2"></div>
                 </div>
-
             </div>
 
             <!-- 2. 준비물 탭 -->
@@ -246,9 +170,7 @@
 
                 <div class="space-y-2 pt-2">
                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">등록된 전체 준비물 목록</h4>
-                    <div id="all-supplies-list" class="space-y-2">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="all-supplies-list" class="space-y-2"></div>
                 </div>
             </div>
 
@@ -276,9 +198,7 @@
                         <span class="text-slate-400">금</span>
                         <span class="text-blue-500">토</span>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-xs">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-xs"></div>
                 </div>
 
                 <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
@@ -300,66 +220,73 @@
                         </div>
                     </form>
 
-                    <div id="todo-list-container" class="space-y-2 pt-1">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="todo-list-container" class="space-y-2 pt-1"></div>
                 </div>
             </div>
 
-            <!-- 4. 심심해 탭 -->
+            <!-- 4. 심심해 탭 (리얼타임 플랫폼 탐색 전용 허브) -->
             <div id="tab-bored" class="p-4 space-y-4 hidden">
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-5 rounded-3xl text-white shadow-md space-y-2">
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-5 rounded-3xl text-white shadow-md space-y-2">
                     <h3 class="text-base font-bold flex items-center gap-2">
-                        📺 실시간 숏폼 & 트렌드 허브
+                        🔥 리얼타임 트렌드 탐색 허브
                     </h3>
-                    <p class="text-xs text-purple-100 leading-relaxed">
-                        심심할 때 터치 한 번으로 최신 릴스와 숏폼 트렌드 피드로 즉시 이동하세요! 매번 무작위 추천 키워드도 함께 갱신됩니다. 🚀
+                    <p class="text-xs text-indigo-100 leading-relaxed">
+                        각 플랫폼의 공식 실시간 인기 및 급상승 피드로 곧바로 연결됩니다. 지금 가장 뜨거운 숏폼과 이슈를 확인하세요! 🚀
                     </p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="https://www.instagram.com/reels/" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
-                        <span class="text-2xl">📸</span>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">인스타그램 릴스</h4>
-                            <p class="text-[10px] text-slate-400 mt-0.5">실시간 인기 영상 피드</p>
+                <div class="space-y-3">
+                    <!-- 인스타그램 릴스 급상승 탐색 -->
+                    <a href="instagram://reels" onclick="openApp('instagram://reels', 'https://www.instagram.com/reels/')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">📸</span>
+                            <div>
+                                <span class="text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md">Instagram</span>
+                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">인스타그램 릴스 실시간 인기 피드</h4>
+                                <p class="text-[10px] text-slate-400">앱 설치 시 앱으로 바로 실행됩니다</p>
+                            </div>
                         </div>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
                     </a>
-                    <a href="https://www.tiktok.com/explore" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
-                        <span class="text-2xl">🎵</span>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">틱톡 (TikTok)</h4>
-                            <p class="text-[10px] text-slate-400 mt-0.5">지금 뜨는 글로벌 챌린지</p>
-                        </div>
-                    </a>
-                    <a href="https://www.youtube.com/shorts" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
-                        <span class="text-2xl">▶️</span>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">유튜브 쇼츠</h4>
-                            <p class="text-[10px] text-slate-400 mt-0.5">실시간 급상승 숏클립</p>
-                        </div>
-                    </a>
-                    <a href="https://twitter.com/explore/tabs/trending" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:border-indigo-400 transition flex flex-col justify-between space-y-2 group">
-                        <span class="text-2xl">💬</span>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800 group-hover:text-indigo-600 transition">X (트위터) 트렌드</h4>
-                            <p class="text-[10px] text-slate-400 mt-0.5">실시간 실검 키워드</p>
-                        </div>
-                    </a>
-                </div>
 
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                            ✨ 오늘의 무작위 추천 챌린지 및 밈
-                        </h4>
-                        <button onclick="refreshRandomTrends()" class="text-[10px] text-indigo-600 font-bold hover:underline cursor-pointer">
-                            🔄 다른 밈 보기
-                        </button>
-                    </div>
-                    <div id="dynamic-trend-container" class="space-y-2">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <!-- 틱톡 실시간 급상승 탐색 -->
+                    <a href="tiktok://explore" onclick="openApp('tiktok://explore', 'https://www.tiktok.com/explore')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">🎵</span>
+                            <div>
+                                <span class="text-[10px] font-bold text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-md">TikTok</span>
+                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">틱톡 글로벌 급상승 탐색</h4>
+                                <p class="text-[10px] text-slate-400">실시간 유행 챌린지 및 영상</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
+                    </a>
+
+                    <!-- 유튜브 쇼츠 실시간 급상승 탐색 -->
+                    <a href="vnd.youtube://www.youtube.com/shorts" onclick="openApp('vnd.youtube://www.youtube.com/shorts', 'https://www.youtube.com/shorts')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">▶️</span>
+                            <div>
+                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">YouTube Shorts</span>
+                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">유튜브 쇼츠 인기 급상승 클립</h4>
+                                <p class="text-[10px] text-slate-400">지금 가장 많이 보는 숏클립</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
+                    </a>
+
+                    <!-- X(트위터) 실시간 트렌드 -->
+                    <a href="https://twitter.com/explore/tabs/trending" target="_blank" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center hover:border-indigo-400 transition cursor-pointer group">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">💬</span>
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">X (Twitter)</span>
+                                <h4 class="text-xs font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">X 실시간 실검 트렌드 피드</h4>
+                                <p class="text-[10px] text-slate-400">지금 실시간으로 뜨는 이슈 키워드</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-xl shrink-0">바로가기 ↗</span>
+                    </a>
                 </div>
             </div>
 
@@ -488,21 +415,11 @@
             "\"배우기만 하고 생각하지 않으면 허황되고, 생각만 하고 배우지 않으면 위태롭다.\" - 공자",
             "\"진정한 발견의 여행은 새로운 풍경을 찾는 것이 아니라 새로운 눈을 갖는 것이다.\" - 마르셀 프루스트",
             "\"위대한 업적은 기분으로 이루어지는 것이 아니라, 끊기 있는 행동으로 이루어진다.\" - 존 러스킨",
-            "\"겨울이 오면 봄이 멀지 않으리.\" - 퍼시 비시 셸리",
+            "\"겨울이 오면 봄이 멀지 하리.\" - 퍼시 비시 셸리",
             "\"인생에서 가장 슬픈 것은 후회하며 사는 것이다.\" - H. H. 모리슨",
             "\"웃음 없는 하루는 낭비한 하루다.\" - 찰리 채플린",
             "\"오늘 하루가 인생의 전부인 것처럼 살아라.\" - 루네우스",
             "\"희망은 붕괴하지 않는 유일한 보물이다.\" - 디오게네스"
-        ];
-
-        const trendPool = [
-            { title: "AI 럼펠스틸츠킨 춤 챌린지", desc: "환상적인 80년대 판타지 분위기의 중독성 댄스", tag: "🔥 급상승", tagColor: "bg-rose-100 text-rose-600" },
-            { title: "'가난하게 컸어?' 대사 리액션 릴스", desc: "반전 유머와 위트 있는 일상 대사 패러디", tag: "💬 대세 짤", tagColor: "bg-amber-100 text-amber-700" },
-            { title: "AI가 보는 나 한 단어 프로필", desc: "내 분위기를 AI에게 물어보고 공유하는 놀이", tag: "🎯 자아탐색", tagColor: "bg-emerald-100 text-emerald-700" },
-            { title: "카더가든 - 나무 챌린지", desc: "잔잔한 노래에 맞춘 정신없는 팔다리 댄스 릴스", tag: "🎵 중독성", tagColor: "bg-purple-100 text-purple-700" },
-            { title: "고양이 르세라핌 챌린지", desc: "귀여운 반려동물과 함께하는 최신 숏폼 안무", tag: "🐾 힐링", tagColor: "bg-blue-100 text-blue-700" },
-            { title: "오피스 직장인 공감 ASMR", desc: "출근길부터 퇴근까지 리얼 직장인 일상 브이로그", tag: "☕ 공감", tagColor: "bg-indigo-100 text-indigo-700" },
-            { title: "주말 홈카페 숏레시피", desc: "단 1분 만에 만드는 초간단 디저트 레시피 릴스", tag: "🍰 맛있는", tagColor: "bg-pink-100 text-pink-700" }
         ];
 
         const hourlyWeather = [
@@ -515,21 +432,24 @@
             { time: '23:00', temp: '16°', type: 'cloudy', desc: '구름많음', rain: '79%', wind: '2mph', uv: '좋음', dust: '좋음', icon: '☁️' },
         ];
 
-        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v13')) || [];
-        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v13')) || {};
+        let suppliesList = JSON.parse(localStorage.getItem('hhh_supplies_v15')) || [];
+        let userChecklists = JSON.parse(localStorage.getItem('hhh_tasks_v15')) || {};
 
         function saveData() {
-            localStorage.setItem('hhh_supplies_v13', JSON.stringify(suppliesList));
-            localStorage.setItem('hhh_tasks_v13', JSON.stringify(userChecklists));
+            localStorage.setItem('hhh_supplies_v15', JSON.stringify(suppliesList));
+            localStorage.setItem('hhh_tasks_v15', JSON.stringify(userChecklists));
+        }
+
+        function openApp(appScheme, webUrl) {
+            const start = Date.now();
+            setTimeout(() => {
+                if (Date.now() - start < 1500) { window.location.href = webUrl; }
+            }, 1000);
+            window.location.href = appScheme;
         }
 
         function exportData() {
-            const backupData = {
-                supplies: suppliesList,
-                tasks: userChecklists,
-                version: "v3.5",
-                backupDate: new Date().toISOString()
-            };
+            const backupData = { supplies: suppliesList, tasks: userChecklists, version: "v3.5", backupDate: new Date().toISOString() };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
@@ -555,12 +475,8 @@
                         renderTasks();
                         alert("데이터가 성공적으로 복원되었습니다! ✨");
                         switchTab('home');
-                    } else {
-                        alert("올바른 백업 파일 형식이 아닙니다.");
-                    }
-                } catch (err) {
-                    alert("파일을 읽는 중 오류가 발생했습니다.");
-                }
+                    } else { alert("올바른 백업 파일 형식이 아닙니다."); }
+                } catch (err) { alert("파일을 읽는 중 오류가 발생했습니다."); }
             };
             reader.readAsText(file);
         }
@@ -586,31 +502,11 @@
             renderTasks();
             initRandomQuote();
             initUserLocation();
-            refreshRandomTrends();
         };
 
         function initRandomQuote() {
             const randomIndex = Math.floor(Math.random() * quotesPool.length);
             document.getElementById('random-quote-box').innerText = quotesPool[randomIndex];
-        }
-
-        function refreshRandomTrends() {
-            const container = document.getElementById('dynamic-trend-container');
-            const shuffled = [...trendPool].sort(() => 0.5 - Math.random());
-            const selected = shuffled.slice(0, 3);
-
-            container.innerHTML = selected.map(item => `
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
-                    <div class="space-y-0.5">
-                        <span class="text-[9px] font-bold ${item.tagColor} px-2 py-0.5 rounded-md">${item.tag}</span>
-                        <h5 class="text-xs font-bold text-slate-800">${item.title}</h5>
-                        <p class="text-[10px] text-slate-500">${item.desc}</p>
-                    </div>
-                    <a href="https://www.instagram.com/explore/tags/릴스/" target="_blank" class="bg-indigo-600 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold hover:bg-indigo-700 transition shrink-0">
-                        보러가기 ↗
-                    </a>
-                </div>
-            `).join('');
         }
 
         function initUserLocation() {
@@ -633,16 +529,12 @@
                                 document.getElementById('weather-subtext').innerText = `${fullLoc} · 실시간 GPS 날씨 연동`;
                                 document.getElementById('smart-briefing-text').innerText = `${fullLoc} 현재 기온 19°C로 쾌적합니다. 기분 좋은 하루 보내세요! ✨`;
                             }
-                        } catch (e) {
-                            setLocationFallback("화성시 영천동");
-                        }
+                        } catch (e) { setLocationFallback("화성시 영천동"); }
                     },
                     (error) => { setLocationFallback("화성시 영천동"); },
                     { timeout: 10000 }
                 );
-            } else {
-                setLocationFallback("화성시 영천동");
-            }
+            } else { setLocationFallback("화성시 영천동"); }
         }
 
         function setLocationFallback(locName) {
@@ -784,9 +676,7 @@
             const lastDate = new Date(calYear, calMonth + 1, 0).getDate();
 
             let html = '';
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div></div>`;
-            }
+            for (let i = 0; i < firstDay; i++) { html += `<div></div>`; }
 
             for (let d = 1; d <= lastDate; d++) {
                 const dayOfWeek = (firstDay + d - 1) % 7;
@@ -796,11 +686,8 @@
                 const hasTask = userChecklists[dateStr] && userChecklists[dateStr].length > 0;
 
                 let textColor = 'text-slate-700';
-                if (dayOfWeek === 0 || holidayName) {
-                    textColor = 'text-rose-500 font-bold';
-                } else if (dayOfWeek === 6) {
-                    textColor = 'text-blue-500 font-bold';
-                }
+                if (dayOfWeek === 0 || holidayName) { textColor = 'text-rose-500 font-bold'; }
+                else if (dayOfWeek === 6) { textColor = 'text-blue-500 font-bold'; }
 
                 html += `
                     <button onclick="selectDate('${dateStr}')" class="py-1.5 px-1 rounded-xl text-xs flex flex-col items-center justify-center transition-all cursor-pointer relative ${isSelected ? 'bg-indigo-600 text-white !text-white font-bold shadow-sm scale-105' : 'hover:bg-slate-100 ' + textColor}" title="${holidayName || ''}">
@@ -846,16 +733,9 @@
 
             if (!textInput.value.trim()) return;
 
-            if (!userChecklists[selectedDate]) {
-                userChecklists[selectedDate] = [];
-            }
+            if (!userChecklists[selectedDate]) { userChecklists[selectedDate] = []; }
 
-            userChecklists[selectedDate].push({
-                id: Date.now(),
-                text: textInput.value.trim(),
-                time: timeInput.value || '12:00',
-                completed: false
-            });
+            userChecklists[selectedDate].push({ id: Date.now(), text: textInput.value.trim(), time: timeInput.value || '12:00', completed: false });
 
             textInput.value = '';
             saveData();
